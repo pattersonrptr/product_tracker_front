@@ -5,7 +5,7 @@ import Pagination from "./Pagination";
 import Filters from "./Filters";
 import "./ProductList.css";
 
-const ProductList = () => {
+const ProductList = ({setIsLoggedIn}) => {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
   const [page, setPage] = useState(1);
@@ -14,6 +14,8 @@ const ProductList = () => {
 
   const fetchProducts = useCallback(async () => {
     try {
+      const accessToken = localStorage.getItem('accessToken'); // Retrive the access token from localStorage
+
       const validFilters = Object.fromEntries(
         Object.entries(filters).filter(
           ([_, value]) => value !== undefined && value !== ""
@@ -26,23 +28,38 @@ const ProductList = () => {
         offset: (page - 1) * itemsPerPage,
       });
 
-      const response = await fetch(`http://localhost:8000/products/filter/?${params}`);
+      const response = await fetch(`http://localhost:8000/products/filter/?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setProducts(data);
       } else {
         console.error("Failed to fetch products");
         setProducts([]);
+        
+        if (response.status === 401 || response.status === 403) {
+          console.log("Token inválido ou expirado, precisa fazer login novamente.");
+          setIsLoggedIn(false);
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
       setProducts([]);
     }
-  }, [filters, page, itemsPerPage]);
+  }, [filters, page, itemsPerPage, setIsLoggedIn]);
 
   const fetchStats = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+  
     try {
-      const response = await fetch("http://localhost:8000/products/stats/");
+      const response = await fetch("http://localhost:8000/products/stats/", {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        }
+      });
       if (response.ok) {
         const data = await response.json();
         setTotalProducts(data.total_products);
@@ -55,11 +72,16 @@ const ProductList = () => {
   };
 
   const deleteProduct = async (productId) => {
+    const accessToken = localStorage.getItem('accessToken');
+    
     try {
       const response = await fetch(
         `http://localhost:8000/products/${productId}/`,
         {
           method: "DELETE",
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          }
         }
       );
       if (response.ok) {
