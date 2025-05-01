@@ -26,7 +26,7 @@ const ProductList = () => {
         offset: (page - 1) * itemsPerPage,
       });
 
-      const response = await fetch(`http://localhost:8000/products/?${params}`);
+      const response = await fetch(`http://localhost:8000/products/filter/?${params}`);
       if (response.ok) {
         const data = await response.json();
         setProducts(data);
