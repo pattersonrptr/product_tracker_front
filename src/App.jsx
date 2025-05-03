@@ -45,11 +45,33 @@ function App() {
     const checkAuth = async () => {
       const token = localStorage.getItem('accessToken');
       if (token) {
-        // Here you can add logic to check if the token is still valid
-        // (decode the JWT and check the expiration date, for example).
-        // For a more secure verification, you would make an API call.
-        // For now, let's just assume that if the token exists, the user is logged in.
-        setIsLoggedIn(true);
+        try {
+          const response = await fetch('http://localhost:8000/auth/verify-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.is_valid) {
+              setIsLoggedIn(true);
+            } else {
+              localStorage.removeItem('accessToken'); // Invalid token, remove from localStorage
+              setIsLoggedIn(false);
+            }
+          } else {
+            console.error('Erro ao verificar o token');
+            localStorage.removeItem('accessToken');
+            setIsLoggedIn(false);
+          }
+        } catch (error) {
+          console.error('Erro ao comunicar com o servidor para verificar o token:', error);
+          localStorage.removeItem('accessToken');
+          setIsLoggedIn(false);
+        }
       }
       setLoading(false);
     };
@@ -58,7 +80,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Carregando...</div>;
   }
 
   return (
