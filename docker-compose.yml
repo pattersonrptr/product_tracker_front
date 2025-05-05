@@ -1,13 +1,8 @@
+version: '3.8'
+
 services:
-  frontend:
-    container_name: react-product-tracker
+  react-app:
     build: .
     ports:
-      - "3000:3000"
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true      # Optional: Add if changes still aren't detected
-      - NODE_ENV=development        # Ensure React runs in development mode
-    volumes:
-      - ./:/app
-      - /app/node_modules
+      - "3000:80"
+    restart: unless-stopped

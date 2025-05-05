@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faArrowsRotate } from '@fortawesome/free-solid-svg-icons';
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from "./Pagination";
 import Filters from "./Filters";
@@ -171,12 +173,13 @@ const ProductList = ({setIsLoggedIn}) => {
               <td>{formatDate(product.created_at)}</td>
               <td>{formatDate(product.updated_at)}</td>
               <td>
-                <button className="update-button">Update</button>
+                <button className="update-button">
+                  <FontAwesomeIcon icon={faArrowsRotate} />
+                </button>
                 <button
-                  className="delete-button"
-                  onClick={() => confirmDelete(product.id)}
+                  className="delete-button" onClick={() => confirmDelete(product.id)}
                 >
-                  Delete
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
               </td>
             </tr>
@@ -191,7 +194,7 @@ const ProductList = ({setIsLoggedIn}) => {
         onPageChange={(newPage) => setPage(newPage)}
       />
 
-      <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

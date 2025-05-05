@@ -1,44 +1,25 @@
-// import React from "react";
-// import ProductList from "./components/ProductList";
-// import "./App.css";
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <h1>Price Monitoring</h1>
-//       </header>
-//       <div className="App-body">
-//         <aside className="App-sidebar">{/* Sidebar empty for now */}</aside>
-//         <main className="App-main">
-//           <ProductList />
-//         </main>
-//       </div>
-//       <footer className="App-footer">
-//         &copy; {new Date().getFullYear()} Sistema de Produtos
-//       </footer>
-//     </div>
-//   );
-// }
-
-// export default App;
-
 import React, { useState, useEffect } from "react";
 import LoginForm from "./components/auth/LoginForm";
 import ProductList from "./components/ProductList";
+import Sidebar from "./components/Sidebar";
+import SearchConfig from "./components/SearchConfig";
 import "./App.css";
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
+    navigate('/');
   };
 
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     setIsLoggedIn(false);
+    navigate('/login');
   };
 
   useEffect(() => {
@@ -59,7 +40,7 @@ function App() {
             if (data.is_valid) {
               setIsLoggedIn(true);
             } else {
-              localStorage.removeItem('accessToken'); // Invalid token, remove from localStorage
+              localStorage.removeItem('accessToken');
               setIsLoggedIn(false);
             }
           } else {
@@ -80,7 +61,7 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div>Carregando...</div>;
+    return <div>Loading...</div>;
   }
 
   return (
@@ -90,16 +71,28 @@ function App() {
         {isLoggedIn && <button onClick={handleLogout}>Logout</button>}
       </header>
       <div className="App-body">
-        <main className="App-main">
-          {isLoggedIn ? (
-            <ProductList setIsLoggedIn={setIsLoggedIn} />
-          ) : (
-            <LoginForm onLoginSuccess={handleLoginSuccess} />
-          )}
-        </main>
+        {isLoggedIn ? (
+          <div className="app-container">
+            <Sidebar />
+            <main className="App-main">
+              <Routes>
+                <Route path="/" element={<ProductList setIsLoggedIn={setIsLoggedIn} />} />
+                <Route path="/search-config" element={<SearchConfig />} /> {/* Use o novo componente aqui */}
+                <Route path="/add-website" element={<div>Página de Adicionar Website</div>} /> {/* Placeholder */}
+              </Routes>
+            </main>
+          </div>
+        ) : (
+          <main className="App-main">
+            <Routes>
+              <Route path="/login" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} />
+              <Route path="/" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} /> {/* Redirects to login if not logged */}
+            </Routes>
+          </main>
+        )}
       </div>
       <footer className="App-footer">
-        &copy; {new Date().getFullYear()} Sistema de Produtos
+        &copy; {new Date().getFullYear()} Products System
       </footer>
     </div>
   );

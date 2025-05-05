@@ -1,35 +1,54 @@
 .App {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
+  text-align: center;
 }
 
 .App-header {
   background-color: #282c34;
-  padding: 1rem;
+  min-height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.5rem;
   color: white;
-  text-align: center;
+  padding: 0 20px;
+}
+
+.App-header button {
+  font-size: 1rem;
+  padding: 8px 15px;
+  border-radius: 5px;
+  border: none;
+  background-color: #dc3545;
+  color: white;
+  cursor: pointer;
+}
+
+.App-header button:hover {
+  background-color: #c82333;
 }
 
 .App-body {
   display: flex;
-  flex: 1;
+  flex-direction: column;
+  min-height: calc(100vh - 120px);
 }
 
-.App-sidebar {
-  width: 200px;
-  border-right: 1px solid #ccc;
-  padding: 1rem;
+.app-container {
+  display: flex;
+  flex-direction: row;
 }
 
 .App-main {
-  flex: 1;
-  padding: 1rem;
+  flex-grow: 1;
+  padding: 20px;
 }
 
 .App-footer {
-  background-color: #f1f1f1;
+  background-color: #f8f9fa;
+  color: #282c34;
+  padding: 10px;
   text-align: center;
-  padding: 1rem;
+  font-size: 0.8rem;
+  border-top: 1px solid #dee2e6;
 }
