@@ -6,13 +6,16 @@ import './Sidebar.css';
 function Sidebar() {
   return (
     <div className="sidebar">
-      <h2>Ações</h2>
+      <h2>Actions</h2>
       <ul>
         <li>
-          <Link to="/search-config">Criar Busca</Link>
+          <Link to="/products">Products</Link>
         </li>
         <li>
-          <Link to="/add-website">Adicionar Website</Link>
+          <Link to="/search-config">Searches</Link>
+        </li>
+        <li>
+          <Link to="/add-website">Web Sites</Link>
         </li>
       </ul>
     </div>

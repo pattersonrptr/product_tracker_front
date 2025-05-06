@@ -13,7 +13,7 @@ function App() {
 
   const handleLoginSuccess = () => {
     setIsLoggedIn(true);
-    navigate('/');
+    navigate('/products');
   };
 
   const handleLogout = () => {
@@ -76,9 +76,9 @@ function App() {
             <Sidebar />
             <main className="App-main">
               <Routes>
-                <Route path="/" element={<ProductList setIsLoggedIn={setIsLoggedIn} />} />
-                <Route path="/search-config" element={<SearchConfig />} /> {/* Use o novo componente aqui */}
-                <Route path="/add-website" element={<div>Página de Adicionar Website</div>} /> {/* Placeholder */}
+                <Route path="/products" element={<ProductList setIsLoggedIn={setIsLoggedIn} />} />
+                <Route path="/search-config" element={<SearchConfig />} />
+                <Route path="/add-website" element={<div>Página de Adicionar Website</div>} />
               </Routes>
             </main>
           </div>
@@ -86,7 +86,7 @@ function App() {
           <main className="App-main">
             <Routes>
               <Route path="/login" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} />
-              <Route path="/" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} /> {/* Redirects to login if not logged */}
+              <Route path="/" element={<LoginForm onLoginSuccess={handleLoginSuccess} />} />
             </Routes>
           </main>
         )}
