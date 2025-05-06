@@ -13,6 +13,7 @@ const ProductList = ({setIsLoggedIn}) => {
   const [page, setPage] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
   const itemsPerPage = 50;
+  const [selectedProducts, setSelectedProducts] = useState([]);
 
   const fetchProducts = useCallback(async () => {
     try {
@@ -113,10 +114,54 @@ const ProductList = ({setIsLoggedIn}) => {
   };
 
   const formatDate = (dateString) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      dateStyle: "short",
-      timeStyle: "short",
-    }).format(new Date(dateString));
+    return new Date(dateString).toLocaleDateString("pt-BR");
+  };
+
+
+  const handleCheckboxChange = (e, productId) => {
+    const isChecked = e.target.checked;
+
+    if (productId === "all") {
+      // If the "select all" checkbox is checked
+      if (isChecked) {
+        const allProductIds = products.map((product) => product.id);
+        setSelectedProducts(allProductIds);
+        // Check all individual checkboxes
+        document.querySelectorAll(".product-checkbox").forEach((checkbox) => {
+          checkbox.checked = true;
+        });
+      } else {
+        // If "select all" is unchecked, clear the selectedProducts array
+        setSelectedProducts([]);
+        // Uncheck all individual checkboxes
+        document.querySelectorAll(".product-checkbox").forEach((checkbox) => {
+          checkbox.checked = false;
+        });
+      }
+    } else {
+      // If an individual checkbox is checked/unchecked
+      if (isChecked) {
+        setSelectedProducts((prevSelected) => [...prevSelected, productId]);
+      } else {
+        setSelectedProducts((prevSelected) =>
+          prevSelected.filter((id) => id !== productId)
+        );
+      }
+    }
+  };
+  
+  const handleDeleteSelected = async () => {
+    if (selectedProducts.length === 0) {
+      toast.warn("No products selected for deletion.");
+      return;
+    }
+  
+    if (window.confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) {
+      for (const productId of selectedProducts) {
+        await deleteProduct(productId);
+      }
+      setSelectedProducts([]); // Clear selected products after deletion
+    }
   };
 
   useEffect(() => {
@@ -134,13 +179,21 @@ const ProductList = ({setIsLoggedIn}) => {
         onSearchChange={handleSearch}
         onFilterChange={handleFilterChange}
       />
+      <div className="actions-menu">
+        <button className="delete-selected-button" onClick={handleDeleteSelected}>
+          Delete Selected
+        </button>
+      </div>
 
       <table className="product-table">
         <thead>
           <tr>
-            <th>Product ID</th>
+            <th>
+              <input type="checkbox" className="product-checkbox" />
+            </th>
+            {/* <th>Product ID</th> */}
             {/* <th>Image</th> */}
-            <th>Source</th>
+            <th>Source Website</th>
             <th>Title</th>
             <th>Price</th>
             <th>Condition</th>
@@ -156,22 +209,43 @@ const ProductList = ({setIsLoggedIn}) => {
         <tbody>
           {products.map((product) => (
             <tr key={product.id}>
-              <td>{product.id}</td>
-              {/* <td>{product.image_urls}</td> */}
-              <td>{product.source_website_id}</td>
               <td>
+                <input
+                  type="checkbox"
+                  className="product-checkbox"
+                  value={product.id}
+                  onChange={(e) => handleCheckboxChange(e, product.id)}
+                />
+              </td>
+              <td>
+                {(product.source_product_code?.split(" - ")[0]) ?? "N/A"}
+              </td>
+              <td>
+                <img
+                  src={product.image_urls}
+                  alt={product?.title}
+                  className="product-image"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
                 <a href={product.url} target="_blank" rel="noopener noreferrer">
-                  {product.title}
+                  {product.title ?? "N/A"}
                 </a>
               </td>
-              <td>{product.price}</td>
-              <td>{product.condition}</td>
-              <td>{product.seller_type}</td>
-              <td>{product.location}</td>
-              <td>{product.is_available}</td>
-              <td>{product.price_history}</td>
-              <td>{formatDate(product.created_at)}</td>
-              <td>{formatDate(product.updated_at)}</td>
+              <td>
+                {product.current_price
+                  ? product.current_price.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })
+                  : "N/A"}
+              </td>
+              <td>{product.condition ?? "N/A"}</td>
+              <td>{product.seller_name ?? "N/A"}</td>
+              <td>{product.city ? product.city : "N/A"} | {product.state ? product.state : "N/A"}</td>
+              <td>{product.is_available !== undefined && product.is_available !== null ? (product.is_available ? "Available" : "Unavailable") : "N/A"}</td>
+              <td>{product.current_price ? product.price_history : 'N/A'}</td>
+              <td>{product.created_at ? formatDate(product.created_at) : "N/A"}</td>
+              <td>{product.updated_at ? formatDate(product.updated_at) : "N/A"}</td>
               <td>
                 <button className="update-button">
                   <FontAwesomeIcon icon={faArrowsRotate} />

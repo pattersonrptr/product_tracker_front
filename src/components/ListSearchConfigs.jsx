@@ -109,7 +109,7 @@ function ListSearchConfigs() {
 
       if (response.ok) {
         toast.success('Busca atualizada com sucesso!');
-        // Atualiza a lista com a configuração editada
+        
         setSearchConfigs(searchConfigs.map(config =>
           config.id === editingConfig.id ? { ...config, search_term: editedSearchTerm } : config
         ));

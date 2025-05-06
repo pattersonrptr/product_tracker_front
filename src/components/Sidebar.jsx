@@ -6,7 +6,6 @@ import './Sidebar.css';
 function Sidebar() {
   return (
     <div className="sidebar">
-      <h2>Actions</h2>
       <ul>
         <li>
           <Link to="/products">Products</Link>
