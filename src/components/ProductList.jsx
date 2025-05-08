@@ -7,7 +7,7 @@ import Pagination from "./Pagination";
 import Filters from "./Filters";
 import "./ProductList.css";
 
-const ProductList = ({setIsLoggedIn}) => {
+const ProductList = ({ setIsLoggedIn }) => {
   const [products, setProducts] = useState([]);
   const [filters, setFilters] = useState({});
   const [page, setPage] = useState(1);
@@ -17,7 +17,7 @@ const ProductList = ({setIsLoggedIn}) => {
 
   const fetchProducts = useCallback(async () => {
     try {
-      const accessToken = localStorage.getItem('accessToken'); // Retrive the access token from localStorage
+      const accessToken = localStorage.getItem('accessToken');
 
       const validFilters = Object.fromEntries(
         Object.entries(filters).filter(
@@ -42,7 +42,7 @@ const ProductList = ({setIsLoggedIn}) => {
       } else {
         console.error("Failed to fetch products");
         setProducts([]);
-        
+
         if (response.status === 401 || response.status === 403) {
           console.log("Token inválido ou expirado, precisa fazer login novamente.");
           setIsLoggedIn(false);
@@ -56,7 +56,7 @@ const ProductList = ({setIsLoggedIn}) => {
 
   const fetchStats = async () => {
     const accessToken = localStorage.getItem('accessToken');
-  
+
     try {
       const response = await fetch("http://localhost:8000/products/stats/", {
         headers: {
@@ -76,7 +76,7 @@ const ProductList = ({setIsLoggedIn}) => {
 
   const deleteProduct = async (productId) => {
     const accessToken = localStorage.getItem('accessToken');
-    
+
     try {
       const response = await fetch(
         `http://localhost:8000/products/${productId}/`,
@@ -88,9 +88,10 @@ const ProductList = ({setIsLoggedIn}) => {
         }
       );
       if (response.ok) {
-        setProducts(products.filter((product) => product.id !== productId));
+        setProducts(prevProducts => prevProducts.filter((product) => product.id !== productId));
         setTotalProducts((prevTotal) => prevTotal - 1);
         toast.success("Product deleted successfully!");
+        setDeletionOccurred(prev => !prev);
       } else {
         toast.error("Failed to delete product");
       }
@@ -121,25 +122,14 @@ const ProductList = ({setIsLoggedIn}) => {
   const handleCheckboxChange = (e, productId) => {
     const isChecked = e.target.checked;
 
-    if (productId === "all") {
-      // If the "select all" checkbox is checked
+    if (productId === "select-all") {
       if (isChecked) {
         const allProductIds = products.map((product) => product.id);
         setSelectedProducts(allProductIds);
-        // Check all individual checkboxes
-        document.querySelectorAll(".product-checkbox").forEach((checkbox) => {
-          checkbox.checked = true;
-        });
       } else {
-        // If "select all" is unchecked, clear the selectedProducts array
         setSelectedProducts([]);
-        // Uncheck all individual checkboxes
-        document.querySelectorAll(".product-checkbox").forEach((checkbox) => {
-          checkbox.checked = false;
-        });
       }
     } else {
-      // If an individual checkbox is checked/unchecked
       if (isChecked) {
         setSelectedProducts((prevSelected) => [...prevSelected, productId]);
       } else {
@@ -149,28 +139,74 @@ const ProductList = ({setIsLoggedIn}) => {
       }
     }
   };
-  
+
+  const [deletionOccurred, setDeletionOccurred] = useState(false);
+
   const handleDeleteSelected = async () => {
     if (selectedProducts.length === 0) {
       toast.warn("No products selected for deletion.");
       return;
     }
-  
+
     if (window.confirm(`Are you sure you want to delete ${selectedProducts.length} products?`)) {
-      for (const productId of selectedProducts) {
-        await deleteProduct(productId);
+      const deletionResults = await Promise.all(
+        selectedProducts.map(async (productId) => {
+          try {
+            const response = await fetch(
+              `http://localhost:8000/products/${productId}/`,
+              {
+                method: "DELETE",
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+                }
+              }
+            );
+            return { id: productId, success: response.ok };
+          } catch (error) {
+            console.error(`Error deleting product ${productId}:`, error);
+            return { id: productId, success: false };
+          }
+        })
+      );
+
+      const successfulDeletions = deletionResults.filter(result => result.success);
+      const failedDeletions = deletionResults.filter(result => !result.success);
+
+      if (successfulDeletions.length > 0) {
+        toast.success(`${successfulDeletions.length} product(s) deleted successfully!`);
+        setProducts(prevProducts =>
+          prevProducts.filter(product => successfulDeletions.every(res => res.id !== product.id))
+        );
+        const newTotalProducts = totalProducts - successfulDeletions.length;
+        setTotalProducts(newTotalProducts);
+
+        const lastPage = Math.ceil(newTotalProducts / itemsPerPage);
+
+        if (page > lastPage && lastPage > 0) {
+          setPage(lastPage);
+        } else if (newTotalProducts === 0) {
+          setPage(1);
+        } else {
+          setDeletionOccurred(prev => !prev);
+        }
       }
-      setSelectedProducts([]); // Clear selected products after deletion
+
+      if (failedDeletions.length > 0) {
+        toast.error(`Failed to delete ${failedDeletions.length} product(s).`);
+      }
+
+      setSelectedProducts([]);
     }
   };
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+  }, [fetchProducts, page, filters, deletionOccurred]);
 
   useEffect(() => {
     fetchStats();
-  }, [filters, page]);
+  }, [filters]);
+
 
   return (
     <div className="product-list">
@@ -189,10 +225,14 @@ const ProductList = ({setIsLoggedIn}) => {
         <thead>
           <tr>
             <th>
-              <input type="checkbox" className="product-checkbox" />
+              <input
+                type="checkbox"
+                name="select-all"
+                className="product-checkbox"
+                checked={selectedProducts.length === products.length && products.length > 0}
+                onChange={(e) => handleCheckboxChange(e, "select-all")}
+              />
             </th>
-            {/* <th>Product ID</th> */}
-            {/* <th>Image</th> */}
             <th>Source Website</th>
             <th>Title</th>
             <th>Price</th>
@@ -215,6 +255,7 @@ const ProductList = ({setIsLoggedIn}) => {
                   className="product-checkbox"
                   value={product.id}
                   onChange={(e) => handleCheckboxChange(e, product.id)}
+                  checked={selectedProducts.includes(product.id)}
                 />
               </td>
               <td>
@@ -251,7 +292,8 @@ const ProductList = ({setIsLoggedIn}) => {
                   <FontAwesomeIcon icon={faArrowsRotate} />
                 </button>
                 <button
-                  className="delete-button" onClick={() => confirmDelete(product.id)}
+                  className="delete-button"
+                  onClick={() => confirmDelete(product.id)}
                 >
                   <FontAwesomeIcon icon={faTrash} />
                 </button>
