@@ -18,7 +18,7 @@ const Pagination = ({
         Previous
       </button>
       <span>
-        Página {currentPage} de {totalPages || 1}
+        Page {currentPage} of {totalPages || 1}
       </span>
       <button
         disabled={currentPage === totalPages}
