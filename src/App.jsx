@@ -76,9 +76,10 @@ function App() {
             <Sidebar />
             <main className="App-main">
               <Routes>
+                <Route path="/" element={<ProductList setIsLoggedIn={setIsLoggedIn} />} />
                 <Route path="/products" element={<ProductList setIsLoggedIn={setIsLoggedIn} />} />
                 <Route path="/search-config" element={<SearchConfig />} />
-                <Route path="/add-website" element={<div>Página de Adicionar Website</div>} />
+                <Route path="/add-website" element={<div>Add Website Page</div>} />
               </Routes>
             </main>
           </div>
