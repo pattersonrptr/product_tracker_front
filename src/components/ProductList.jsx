@@ -7,6 +7,7 @@ import Pagination from "./Pagination";
 import Filters from "./Filters";
 import "./ProductList.css";
 import ConfirmationModal from './ConfirmationModal';
+import ActionsMenu from './ActionsMenu';
 
 const ProductList = ({ setIsLoggedIn }) => {
   const [products, setProducts] = useState([]);
@@ -193,20 +194,20 @@ const ProductList = ({ setIsLoggedIn }) => {
 
   return (
     <div className="product-list">
-      {products.length > 0 && (
-        <>
-          <Filters
-            filters={filters}
-            onSearchChange={handleSearch}
-            onFilterChange={handleFilterChange}
-          />
-          <div className="actions-menu">
-            <button className="delete-selected-button" onClick={handleDeleteSelected}>
-              Delete Selected
-            </button>
-          </div>
-        </>
-      )}
+      <div className="table-toolbar">
+        <Filters
+          filters={filters}
+          onSearchChange={handleSearch}
+          onFilterChange={handleFilterChange}
+        />
+        <div className="toolbar-separator-horizontal" />
+        <ActionsMenu label="Actions">
+          <button className="delete-selected-button" onClick={handleDeleteSelected}>
+            Delete Selected
+          </button>
+          {/* Later, I can add more buttons here */}
+        </ActionsMenu>
+      </div>
 
       {isLoading ? (
         <div className="loading-container">
@@ -238,7 +239,6 @@ const ProductList = ({ setIsLoggedIn }) => {
                 <th>Seller</th>
                 <th>Location</th>
                 <th>Availability</th>
-                <th>Price History</th>
                 <th>Created At</th>
                 <th>Updated At</th>
                 <th>Actions</th>
@@ -282,7 +282,6 @@ const ProductList = ({ setIsLoggedIn }) => {
                   <td>{product.seller_name ?? "N/A"}</td>
                   <td>{product.city ? product.city : "N/A"} | {product.state ? product.state : "N/A"}</td>
                   <td>{product.is_available !== undefined && product.is_available !== null ? (product.is_available ? "Available" : "Unavailable") : "N/A"}</td>
-                  <td>{product.current_price ? product.price_history : 'N/A'}</td>
                   <td>{product.created_at ? formatDate(product.created_at) : "N/A"}</td>
                   <td>{product.updated_at ? formatDate(product.updated_at) : "N/A"}</td>
                   <td>

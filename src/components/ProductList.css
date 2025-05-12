@@ -1,29 +1,3 @@
-.product-list .filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.product-list .filter-group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 0.5rem;
-}
-
-.product-list .filter-group label {
-  font-weight: 500;
-  margin-bottom: 0.3rem;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.product-list .filter-group input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
 .product-list ul {
   list-style-type: none;
   padding: 0;
@@ -56,23 +30,6 @@
 
 .delete-button {
   margin-left: 10px;
-}
-
-.actions-menu {
-  margin-bottom: 10px;
-}
-
-.delete-selected-button {
-  background-color: #f44336;
-  color: white;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.delete-selected-button:hover {
-  background-color: #d32f2f;
 }
 
 .product-table {
@@ -129,4 +86,25 @@
   padding: 20px;
   font-size: 1.2em;
   color: #777;
+}
+
+.table-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafbfc;
+}
+
+.toolbar-separator-horizontal {
+  width: 100%;
+  height: 1px;
+  background: #e0e0e0;
+  margin: 16px 0;
+}
+
+.toolbar-separator {
+  display: none; /* Oculta o separador vertical, se ainda existir */
 }

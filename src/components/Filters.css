@@ -4,7 +4,6 @@
   gap: 20px;
   padding: 20px;
   background-color: #f9f9f9;
-  border-bottom: 1px solid #eee;
 }
 
 .filter-group {
@@ -27,7 +26,21 @@
   width: 200px;
 }
 
-/* Estilos específicos para o react-datepicker */
+.product-list .filter-group label {
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.product-list .filter-group input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+/* Specific styles for react-datepicker */
 .filter-group .react-datepicker-wrapper {
   width: 200px;
 }

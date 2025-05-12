@@ -44,30 +44,6 @@ const Filters = ({ filters, onSearchChange, onFilterChange }) => {
       </div>
 
       <div className="filter-group">
-        <label htmlFor="min-price">Minimum Price</label>
-        <input
-          id="min-price"
-          type="number"
-          placeholder="0"
-          name="min_price"
-          value={filters.min_price || ""}
-          onChange={handleNumberInputChange}
-        />
-      </div>
-
-      <div className="filter-group">
-        <label htmlFor="max-price">Maximum Price</label>
-        <input
-          id="max-price"
-          type="number"
-          placeholder="1000"
-          name="max_price"
-          value={filters.max_price || ""}
-          onChange={handleNumberInputChange}
-        />
-      </div>
-
-      <div className="filter-group">
         <label>Created Period</label>
         <DatePicker
           selectsRange
@@ -90,18 +66,6 @@ const Filters = ({ filters, onSearchChange, onFilterChange }) => {
           placeholderText="Select Date Range"
         />
       </div>
-
-      {/* <div className="filter-group">
-        <label htmlFor="url-filter">Product URL</label>
-        <input
-          id="url-filter"
-          type="text"
-          placeholder="https://example.com/product"
-          name="url"
-          value={filters.url}
-          onChange={onFilterChange}
-        />
-      </div> */}
     </div>
   );
 };
