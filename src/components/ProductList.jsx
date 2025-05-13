@@ -8,6 +8,9 @@ import Filters from "./Filters";
 import "./ProductList.css";
 import ConfirmationModal from './ConfirmationModal';
 import ActionsMenu from './ActionsMenu';
+import useDeletion from './hooks/useDeletion';
+
+import { fetchProductsService, fetchStatsService, deleteProductService } from "../services/productService";
 
 const ProductList = ({ setIsLoggedIn }) => {
   const [products, setProducts] = useState([]);
@@ -19,89 +22,56 @@ const ProductList = ({ setIsLoggedIn }) => {
   const [deletionOccurred, setDeletionOccurred] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
-  const [productToDelete, setProductToDelete] = useState(null);
-  const [isBulkDelete, setIsBulkDelete] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setIsLoading(true);
-    try {
-      const accessToken = localStorage.getItem('accessToken');
+    const result = await fetchProductsService(filters, page, itemsPerPage);
+    setIsLoading(false);
 
-      const validFilters = Object.fromEntries(
-        Object.entries(filters).filter(
-          ([_, value]) => value !== undefined && value !== ""
-        )
-      );
-
-      const params = new URLSearchParams({
-        ...validFilters,
-        limit: itemsPerPage,
-        offset: (page - 1) * itemsPerPage,
-      });
-
-      const response = await fetch(`http://localhost:8000/products/filter/?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setProducts(data);
-      } else {
-        console.error("Failed to fetch products");
-        setProducts([]);
-
-        if (response.status === 401 || response.status === 403) {
-          console.log("Token inválido ou expirado, precisa fazer login novamente.");
-          setIsLoggedIn(false);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    if (result?.data) {
+      setProducts(result.data);
+    } else if (result?.error === 'unauthorized') {
+      console.log("Invalid or expired token, need to log in again.");
+      setIsLoggedIn(false);
       setProducts([]);
-    } finally {
-      setIsLoading(false);
+    } else {
+      console.error("Failed to fetch products");
+      setProducts([]);
     }
   }, [filters, page, itemsPerPage, setIsLoggedIn]);
 
+  const clearSelectedProducts = useCallback(() => {
+    setSelectedProducts([]);
+  }, []);
+
+  const {
+    isConfirmationOpen,
+    itemIdToDelete,
+    isBulkDelete,
+    openConfirmationModal: openDeletionConfirmationModal,
+    closeConfirmationModal: closeDeletionConfirmationModal,
+    handleConfirmDelete,
+    setIsBulkDelete: setDeletionHookIsBulkDelete,
+    setItemsToDelete: setDeletionHookItemsToDelete,
+  } = useDeletion({
+    onDeleteItem: deleteProductService,
+    updateItemList: setProducts,
+    updateTotalItems: setTotalProducts,
+    getItemId: (product) => product.id,
+    onProductsChanged: fetchProducts,
+    onClearSelectedProducts: clearSelectedProducts,
+  });
+
+
   const fetchStats = async () => {
-    try {
-      const accessToken = localStorage.getItem('accessToken');
-      const response = await fetch("http://localhost:8000/products/stats/", {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setTotalProducts(data.total_products);
-      } else {
-        console.error("Failed to fetch stats");
-      }
-    } catch (error) {
-      console.error("Error fetching stats:", error);
+    const result = await fetchStatsService();
+    if (result?.data) {
+      setTotalProducts(result.data.total_products);
+    } else {
+      console.error("Failed to fetch stats");
     }
   };
 
-  const deleteProduct = async (productId) => {
-    const accessToken = localStorage.getItem('accessToken');
-    try {
-      const response = await fetch(
-        `http://localhost:8000/products/${productId}/`,
-        {
-          method: "DELETE",
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-          }
-        }
-      );
-      return response.ok;
-    } catch (error) {
-      console.error(`Error deleting product ${productId}:`, error);
-      return false;
-    }
-  };
 
   const handleSearch = (e) => {
     setFilters({ ...filters, title: e.target.value });
@@ -117,80 +87,40 @@ const ProductList = ({ setIsLoggedIn }) => {
 
   const handleCheckboxChange = (e, productId) => {
     const isChecked = e.target.checked;
+    console.log('handleCheckboxChange called', { productId, isChecked });
     if (productId === "select-all") {
-      setSelectedProducts(isChecked ? products.map((product) => product.id) : []);
+      setSelectedProducts(isChecked ? [...products].map((product) => product.id) : []);
+      console.log('selectedProducts after select-all:', isChecked ? products.map((product) => product.id) : []);
     } else {
-      setSelectedProducts(prevSelected =>
-        isChecked ? [...prevSelected, productId] : prevSelected.filter((id) => id !== productId)
-      );
+      setSelectedProducts((prevState) => {
+        const updatedSelection = isChecked
+          ? [...prevState, productId]
+          : prevState.filter((id) => id !== productId);
+        console.log('selectedProducts after individual check:', updatedSelection);
+        return updatedSelection;
+      });
     }
   };
+
 
   const handleDeleteSelected = () => {
     if (selectedProducts.length === 0) {
       toast.warn("No products selected for deletion.");
       return;
     }
-    setIsBulkDelete(true);
-    openConfirmationModal();
+    setDeletionHookIsBulkDelete(true);
+    setDeletionHookItemsToDelete([...selectedProducts]);
+    openDeletionConfirmationModal(null);
   };
 
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts, page, filters, deletionOccurred]);
+  }, [filters, page, deletionOccurred]);
+
 
   useEffect(() => {
     fetchStats();
   }, [filters]);
-
-  const openConfirmationModal = (productId) => {
-    setProductToDelete(productId);
-    setIsConfirmationOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    setIsConfirmationOpen(false);
-    if (isBulkDelete) {
-      const deletionResults = await Promise.all(
-        selectedProducts.map(productId => deleteProduct(productId))
-      );
-      const successfulDeletions = deletionResults.filter(success => success).length;
-      const failedDeletions = deletionResults.length - successfulDeletions;
-
-      if (successfulDeletions > 0) {
-        toast.success(`${successfulDeletions} product(s) deleted successfully!`);
-        setProducts(prevProducts =>
-          prevProducts.filter(product => !selectedProducts.includes(product.id))
-        );
-        setTotalProducts(prevTotal => prevTotal - successfulDeletions);
-        setDeletionOccurred(prev => !prev);
-      }
-
-      if (failedDeletions > 0) {
-        toast.error(`Failed to delete ${failedDeletions} product(s).`);
-      }
-
-      setSelectedProducts([]);
-      setIsBulkDelete(false);
-    } else if (productToDelete) {
-      const success = await deleteProduct(productToDelete);
-      if (success) {
-        setProducts(prevProducts => prevProducts.filter((product) => product.id !== productToDelete));
-        setTotalProducts(prevTotal => prevTotal - 1);
-        toast.success("Product deleted successfully!");
-        setDeletionOccurred(prev => !prev);
-      } else {
-        toast.error("Failed to delete product");
-      }
-      setProductToDelete(null);
-    }
-  };
-
-  const closeConfirmationModal = () => {
-    setIsConfirmationOpen(false);
-    setProductToDelete(null);
-    setIsBulkDelete(false);
-  };
 
   return (
     <div className="product-list">
@@ -290,7 +220,7 @@ const ProductList = ({ setIsLoggedIn }) => {
                     </button>
                     <button
                       className="delete-button"
-                      onClick={() => openConfirmationModal(product.id)}
+                      onClick={() => openDeletionConfirmationModal(product.id)}
                     >
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
@@ -317,7 +247,7 @@ const ProductList = ({ setIsLoggedIn }) => {
         isOpen={isConfirmationOpen}
         message={isBulkDelete ? `Are you sure you want to delete ${selectedProducts.length} products?` : "Are you sure you want to delete this product?"}
         onConfirm={handleConfirmDelete}
-        onCancel={closeConfirmationModal}
+        onCancel={closeDeletionConfirmationModal}
       />
     </div>
   );
