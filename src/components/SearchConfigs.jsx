@@ -41,7 +41,6 @@ const SearchConfigs = () => {
             queryParams.append('offset', offset);
 
             if (filterModel.quickFilterValues && filterModel.quickFilterValues.length > 0) {
-                // Aqui estamos pegando o primeiro valor do quickFilterValues para a busca
                 queryParams.append('name', filterModel.quickFilterValues[0]);
             }
             
