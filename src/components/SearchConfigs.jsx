@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { DataGrid, GridActionsCellItem, GridToolbarContainer, GridToolbarQuickFilter } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
@@ -23,7 +23,7 @@ const SearchConfigs = () => {
 
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
     const [rowCount, setRowCount] = useState(0);
-    const [filterModel, setFilterModel] = useState({ items: [], quickFilterValues: [] });
+    const [filterModel, setFilterModel] = useState({ items: [] });
     const [sortModel, setSortModel] = useState([]);
 
     const { enqueueSnackbar } = useSnackbar();
@@ -40,29 +40,41 @@ const SearchConfigs = () => {
             queryParams.append('limit', limit);
             queryParams.append('offset', offset);
 
-            if (filterModel.quickFilterValues && filterModel.quickFilterValues.length > 0) {
-                queryParams.append('name', filterModel.quickFilterValues[0]);
+            if (filterModel.items && filterModel.items.length > 0) {
+                filterModel.items.forEach(item => {
+                    if (item.value !== undefined && item.value !== null) {
+                        let filterValue = item.value;
+                        if (item.field === 'is_active' && typeof item.value === 'boolean') {
+                            filterValue = item.value ? 'true' : 'false';
+                        }
+                        
+                        queryParams.append(`filter_${item.field}_value`, filterValue);
+                        if (item.operator) {
+                            queryParams.append(`filter_${item.field}_operator`, item.operator);
+                        }
+                    }
+                });
             }
-            
+
             if (sortModel.length > 0) {
                 const sortItem = sortModel[0];
                 queryParams.append('sort_by', sortItem.field);
                 queryParams.append('sort_order', sortItem.sort);
             }
 
-            const response = await axios.get(`http://127.0.0.1:8000/search_configs/`, {
+            const response = await axios.get(`http://127.0.0.1:8000/search_configs/?${queryParams.toString()}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            console.log(response.data)
-            setRows(response.data);
-            setRowCount(10);
+
+            setRows(response.data.items);
+            setRowCount(response.data.total_count);
 
         } catch (err) {
-            console.error('Erro ao buscar websites:', err);
-            setError('Erro ao carregar websites.');
-            enqueueSnackbar('Erro ao carregar websites. Tente novamente mais tarde.', { variant: 'error' });
+            console.error('Error fetching websites:', err);
+            setError('Error loading websites.');
+            enqueueSnackbar('Error loading websites. Please try again later.', { variant: 'error' });
         } finally {
             setLoading(false);
         }
@@ -71,7 +83,7 @@ const SearchConfigs = () => {
     useEffect(() => {
         const handler = setTimeout(() => {
             fetchWebsites();
-        }, 500);
+        }, 300);
 
         return () => {
             clearTimeout(handler);
@@ -94,11 +106,11 @@ const SearchConfigs = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                enqueueSnackbar('Website deletado com sucesso!', { variant: 'success' });
+                enqueueSnackbar('Website deleted successfully!', { variant: 'success' });
                 fetchWebsites();
             } catch (err) {
-                console.error('Erro ao deletar website:', err);
-                const errorMessage = err.response?.data?.detail || 'Erro ao deletar website.';
+                console.error('Error deleting website:', err);
+                const errorMessage = err.response?.data?.detail || 'Error deleting website.';
                 enqueueSnackbar(errorMessage, { variant: 'error' });
             } finally {
                 setItemToDeleteId(null);
@@ -108,7 +120,7 @@ const SearchConfigs = () => {
 
     const handleDeleteSelected = useCallback(() => {
         if (rowSelection.length === 0) {
-            enqueueSnackbar("Por favor, selecione os itens que deseja deletar.", { variant: 'warning' });
+            enqueueSnackbar("Please select the items you want to delete.", { variant: 'warning' });
             return;
         }
         setConfirmAction('bulkDelete');
@@ -129,20 +141,20 @@ const SearchConfigs = () => {
             const { deleted, not_found } = response.data;
 
             if (deleted && deleted.length > 0) {
-                enqueueSnackbar(`${deleted.length} website(s) deletado(s) com sucesso.`, { variant: 'success' });
+                enqueueSnackbar(`${deleted.length} website(s) deleted successfully.`, { variant: 'success' });
             }
             if (not_found && not_found.length > 0) {
-                enqueueSnackbar(`${not_found.length} website(s) não encontrado(s) para deletar.`, { variant: 'warning' });
+                enqueueSnackbar(`${not_found.length} website(s) not found for deletion.`, { variant: 'warning' });
             }
             if ((!deleted || deleted.length === 0) && (!not_found || not_found.length === 0)) {
-                 enqueueSnackbar(`Nenhum website foi deletado.`, { variant: 'info' });
+                 enqueueSnackbar(`No website was deleted.`, { variant: 'info' });
             }
 
             fetchWebsites();
             setRowSelection([]);
         } catch (err) {
-            console.error('Erro ao deletar websites selecionados:', err);
-            const errorMessage = err.response?.data?.detail || 'Erro ao deletar websites selecionados.';
+            console.error('Error deleting selected websites:', err);
+            const errorMessage = err.response?.data?.detail || 'Error deleting selected websites.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
         }
     }, [rowSelection, fetchWebsites, enqueueSnackbar]);
@@ -185,8 +197,8 @@ const SearchConfigs = () => {
                         'Content-Type': 'application/json'
                     }
                 });
-                console.log('Website atualizado:', response.data);
-                enqueueSnackbar('Website atualizado com sucesso!', { variant: 'success' });
+                console.log('Website updated:', response.data);
+                enqueueSnackbar('Website updated successfully!', { variant: 'success' });
             } else {
                 const response = await axios.post('http://127.0.0.1:8000/search_configs/', websiteData, {
                     headers: {
@@ -194,41 +206,42 @@ const SearchConfigs = () => {
                         'Content-Type': 'application/json'
                     }
                 });
-                console.log('Novo website criado:', response.data);
-                enqueueSnackbar('Novo website criado com sucesso!', { variant: 'success' });
+                console.log('New website created:', response.data);
+                enqueueSnackbar('New website created successfully!', { variant: 'success' });
             }
             fetchWebsites();
             handleCloseModal();
         } catch (err) {
-            console.error('Erro ao salvar website:', err);
-            const errorMessage = err.response?.data?.detail || 'Erro ao salvar website. Verifique os dados.';
+            console.error('Error saving website:', err);
+            const errorMessage = err.response?.data?.detail || 'Error saving website. Please check the data.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
         }
     }, [currentWebsite, fetchWebsites, handleCloseModal, enqueueSnackbar]);
 
     const columns = useMemo(() => [
         { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'search_term', headerName: 'Search Term', width: 150 },
-        { field: 'frequency_days', headerName: 'Frequency Days', width: 250 },
+        { field: 'search_term', headerName: 'Search Term', width: 200 },
         { field: 'is_active', headerName: 'Active', type: 'boolean', width: 100 },
+        { field: 'frequency_days', headerName: 'Frequency (days)', type: 'number', width: 140 },
+        { field: 'preferred_time', headerName: 'Preferred Time', width: 130 },
+        { field: 'user_id', headerName: 'User ID', width: 90 },
         {
             field: 'actions',
             headerName: 'Actions',
             type: 'actions',
             width: 100,
-
             getActions: (params) => [
                 <GridActionsCellItem
                     icon={<DeleteIcon />}
                     label="Delete"
                     onClick={() => handleDelete(params.id)}
-                    // showInMenu /* Optional: shows in the cell menu */
+                    // showInMenu
                 />,
                 <GridActionsCellItem
                     icon={<EditIcon />}
                     label="Update"
                     onClick={() => handleUpdate(params.id)}
-                    // showInMenu /* Optional: shows in the cell menu */
+                    // showInMenu
                 />,
             ],
         },
@@ -238,14 +251,13 @@ const SearchConfigs = () => {
         return function CustomToolbarComponent() {
             return (
                 <GridToolbarContainer>
-                    <GridToolbarQuickFilter />
                     <Button
                         onClick={handleOpenCreateModal}
                         variant="contained"
                         color="primary"
                         style={{ marginLeft: 'auto' }}
                     >
-                        Criar Novo
+                        Create New
                     </Button>
                 </GridToolbarContainer>
             );
@@ -260,11 +272,11 @@ const SearchConfigs = () => {
     let confirmDialogMessage = "";
 
     if (confirmAction === 'singleDelete') {
-        confirmDialogTitle = "Confirmar Deleção";
-        confirmDialogMessage = "Tem certeza que deseja deletar este item?";
+        confirmDialogTitle = "Confirm Deletion";
+        confirmDialogMessage = "Are you sure you want to delete this item?";
     } else if (confirmAction === 'bulkDelete') {
-        confirmDialogTitle = "Confirmar Deleção de Múltiplos Itens";
-        confirmDialogMessage = `Tem certeza que deseja deletar os ${rowSelection.length} item(s) selecionado(s)?`;
+        confirmDialogTitle = "Confirm Multiple Deletion";
+        confirmDialogMessage = `Are you sure you want to delete the ${rowSelection.length} selected item(s)?`;
     }
 
     return (
@@ -273,10 +285,10 @@ const SearchConfigs = () => {
             {rowSelection.length > 0 && (
                 <Toolbar style={{ marginBottom: 10, backgroundColor: '#f5f5f5' }}>
                     <Typography sx={{ flex: '1 1 100%' }} variant="subtitle1" component="div">
-                        {rowSelection.length} item(s) selecionado(s)
+                        {rowSelection.length} item(s) selected
                     </Typography>
                     <Button onClick={handleDeleteSelected} variant="contained" color="error" size="small">
-                        Deletar
+                        Delete
                     </Button>
                 </Toolbar>
             )}
@@ -301,10 +313,12 @@ const SearchConfigs = () => {
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
                     toolbar: {
-                        showQuickFilter: true,
-                        quickFilterProps: { debounceMs: 500 },
+                        // Reserved for a future CustomToolbar, maybe adding a quick filter field
+                        // or other custom actions
                     },
                 }}
+                onRowSelectionModelChange={setRowSelection}
+                rowSelectionModel={rowSelection}
             />
             <SourceWebsiteModal
                 open={isModalOpen}
