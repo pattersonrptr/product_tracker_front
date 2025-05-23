@@ -55,8 +55,14 @@ const Products = () => {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
+
+            // Adicione este console.log para inspecionar a resposta
+            console.log('API Response for Products:', response.data);
+
             setRows(response.data.items);
-            setRowCount(response.data.total_count);
+            // Garante que rowCount é um número não negativo
+            setRowCount(response.data.total_count !== undefined && response.data.total_count !== null ? response.data.total_count : 0);
+
         } catch (err) {
             console.error('Error fetching products:', err);
             setError(err);
