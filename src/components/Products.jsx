@@ -140,7 +140,7 @@ const Products = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/products/${itemToDeleteId}`, {
+                await axios.delete(`http://127.0.0.1:8000/products/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Product deleted successfully!', { variant: 'success' });
@@ -158,8 +158,8 @@ const Products = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://127.0.0.1:8000/products/bulk_delete', { ids: rowSelection }, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            await axios.delete('http://127.0.0.1:8000/products/bulk/delete', { ids: rowSelection }, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             enqueueSnackbar('Selected Products deleted successfully!', { variant: 'success' });
             setRowSelection([]);

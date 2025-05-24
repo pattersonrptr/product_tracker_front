@@ -121,13 +121,12 @@ const SourceWebsites = () => {
         setIsModalOpen(true);
     }, []);
 
-    // Funções para o diálogo de confirmação
     const handleConfirmSingleDelete = useCallback(async () => {
         setIsConfirmDialogOpen(false);
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/source_websites/${itemToDeleteId}`, {
+                await axios.delete(`http://127.0.0.1:8000/source_websites/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Source Website deleted successfully!', { variant: 'success' });
@@ -145,11 +144,12 @@ const SourceWebsites = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://127.0.0.1:8000/source_websites/bulk_delete', { ids: rowSelection }, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            await axios.delete('http://127.0.0.1:8000/source_websites/bulk/delete', {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                data: { ids: rowSelection }
             });
             enqueueSnackbar('Selected Source Websites deleted successfully!', { variant: 'success' });
-            setRowSelection([]); // Limpa a seleção
+            setRowSelection([]);
             fetchWebsites();
         } catch (err) {
             console.error('Error deleting selected source websites:', err);
