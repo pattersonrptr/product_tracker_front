@@ -38,20 +38,28 @@ const SearchConfigs = () => {
         setError(null);
         try {
             const token = localStorage.getItem('token');
-            const params = {
-                page: paginationModel.page + 1,
-                page_size: paginationModel.pageSize,
-                sort_by: sortModel.length > 0 ? sortModel[0].field : undefined,
-                sort_order: sortModel.length > 0 ? sortModel[0].sort : undefined,
-            };
+            const params = {};
+
+            const offset = paginationModel.page * paginationModel.pageSize;
+            const limit = paginationModel.pageSize;
+            const queryParams = new URLSearchParams();
+            queryParams.append('limit', limit);
+            queryParams.append('offset', offset);
+
+            if (sortModel.length > 0) {
+                const sortItem = sortModel[0];
+                queryParams.append('sort_by', sortItem.field);
+                queryParams.append('sort_order', sortItem.sort);
+            }
 
             filterModel.items.forEach(item => {
                 if (item.value) {
-                    params[item.field] = item.value;
+                    params[`filter_${item.field}_value`] = item.value;
+                    params[`filter_${item.field}_operator`] = item.operator;
                 }
             });
 
-            const response = await axios.get('http://127.0.0.1:8000/search_configs/', {
+            const response = await axios.get(`http://127.0.0.1:8000/search_configs/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
@@ -259,6 +267,7 @@ const SearchConfigs = () => {
             <DataGrid
                 rows={rows}
                 columns={columns}
+                pageSizeOptions={[2, 10, 25, 50, 100]}
                 rowCount={rowCount}
                 paginationMode="server"
                 paginationModel={paginationModel}

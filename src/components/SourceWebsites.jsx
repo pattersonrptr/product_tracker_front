@@ -46,7 +46,6 @@ const SourceWebsites = () => {
             queryParams.append('limit', limit);
             queryParams.append('offset', offset);
 
-
             if (sortModel.length > 0) {
                 const sortItem = sortModel[0];
                 queryParams.append('sort_by', sortItem.field);
