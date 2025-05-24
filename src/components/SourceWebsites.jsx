@@ -2,12 +2,11 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { DataGrid, GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add'; // Adicionado AddIcon
+import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
 import axios from 'axios';
-// import SourceWebsiteModal from './SourceWebsiteModal'; // Removido
-import GenericFormModal from './GenericFormModal'; // Adicionado
-import SourceWebsiteForm from './SourceWebsiteForm'; // Adicionado
+import GenericFormModal from './GenericFormModal';
+import SourceWebsiteForm from './SourceWebsiteForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
 
@@ -28,11 +27,11 @@ const SourceWebsites = () => {
     const [rowCount, setRowCount] = useState(0);
     const [filterModel, setFilterModel] = useState({ items: [] });
     const [sortModel, setSortModel] = useState([]);
-    const [isSavingWebsite, setIsSavingWebsite] = useState(false); // Adicionado para controle de salvamento
+    const [isSavingWebsite, setIsSavingWebsite] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const sourceWebsiteFormRef = useRef(null); // Adicionado: A ref para o formulário
+    const sourceWebsiteFormRef = useRef(null);
 
     const fetchWebsites = useCallback(async () => {
         setLoading(true);
@@ -73,15 +72,14 @@ const SourceWebsites = () => {
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
-        setCurrentWebsite(null); // Limpa o website atual ao fechar
+        setCurrentWebsite(null);
     }, []);
 
     const handleSaveWebsite = useCallback(async () => {
         if (!sourceWebsiteFormRef.current) return;
 
-        const websiteData = sourceWebsiteFormRef.current.getFormData(); // Obtém os dados do formulário
+        const websiteData = sourceWebsiteFormRef.current.getFormData();
 
-        // Validações básicas
         if (!websiteData.name || websiteData.name.trim() === '') {
             enqueueSnackbar('Website Name is required.', { variant: 'error' });
             return;
@@ -117,7 +115,7 @@ const SourceWebsites = () => {
     }, [currentWebsite, enqueueSnackbar, fetchWebsites, handleCloseModal]);
 
     const handleOpenCreateWebsiteModal = useCallback(() => {
-        setCurrentWebsite(null); // Para criar um novo, o currentWebsite é nulo
+        setCurrentWebsite(null);
         setIsModalOpen(true);
     }, []);
 
@@ -242,7 +240,6 @@ const SourceWebsites = () => {
                         Delete Selected ({rowSelection.length})
                     </Button>
                 )}
-                {/* Você pode adicionar mais itens de toolbar aqui, se necessário */}
             </GridToolbarContainer>
         );
     }
@@ -275,7 +272,7 @@ const SourceWebsites = () => {
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
                     toolbar: {
-                        // Você pode passar props adicionais para CustomToolbar aqui se ela precisar
+                        // You can pass additional props to CustomToolbar here if needed
                     },
                 }}
                 onRowSelectionModelChange={setRowSelection}
@@ -290,7 +287,6 @@ const SourceWebsites = () => {
                 title={currentWebsite ? "Edit Website" : "Register New Website"}
                 isSaving={isSavingWebsite}
             >
-                {/* Renderiza o formulário específico de Source Website aqui */}
                 <SourceWebsiteForm initialData={currentWebsite} ref={sourceWebsiteFormRef} />
             </GenericFormModal>
             <ConfirmationDialog

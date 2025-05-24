@@ -56,11 +56,9 @@ const Products = () => {
                 params: params,
             });
 
-            // Adicione este console.log para inspecionar a resposta
             console.log('API Response for Products:', response.data);
 
             setRows(response.data.items);
-            // Garante que rowCount é um número não negativo
             setRowCount(response.data.total_count !== undefined && response.data.total_count !== null ? response.data.total_count : 0);
 
         } catch (err) {
@@ -86,7 +84,6 @@ const Products = () => {
 
         const productData = productFormRef.current.getFormData();
 
-        // Validações adicionais para os novos campos
         if (!productData.title || productData.title.trim() === '') {
             enqueueSnackbar('Product Title is required.', { variant: 'error' });
             return;
@@ -103,7 +100,6 @@ const Products = () => {
             enqueueSnackbar('Current Price must be a non-negative number.', { variant: 'error' });
             return;
         }
-
 
         setIsSavingProduct(true);
         try {
@@ -158,8 +154,9 @@ const Products = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/products/bulk/delete', { ids: rowSelection }, {
-                headers: { 'Authorization': `Bearer ${token}` }
+            await axios.delete('http://127.0.0.1:8000/products/bulk/delete', {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                data: { ids: rowSelection }
             });
             enqueueSnackbar('Selected Products deleted successfully!', { variant: 'success' });
             setRowSelection([]);
@@ -191,7 +188,6 @@ const Products = () => {
         setIsConfirmDialogOpen(true);
     }, [rowSelection, enqueueSnackbar]);
 
-
     const confirmDialogTitle = useMemo(() => {
         if (confirmAction === 'singleDelete') return 'Confirm Deletion';
         if (confirmAction === 'bulkDelete') return `Confirm Deletion of ${rowSelection.length} Products`;
@@ -210,8 +206,6 @@ const Products = () => {
             { field: 'title', headerName: 'Title', flex: 1.5 },
             { field: 'url', headerName: 'URL', flex: 2 },
             { field: 'source_website_id', headerName: 'Source Website ID', width: 150 },
-            // Se o backend retorna o objeto source_website aninhado, você pode exibir o nome:
-            // { field: 'source_website_name', headerName: 'Source Website', width: 150, valueGetter: (params) => params.row.source_website?.name || '' },
             { field: 'current_price', headerName: 'Price', width: 100, type: 'number',
               valueFormatter: (value) => value !== null ? `R$ ${value.toFixed(2)}` : ''
             },
@@ -221,8 +215,7 @@ const Products = () => {
             { field: 'condition', headerName: 'Condition', width: 120 },
             { field: 'seller_name', headerName: 'Seller', width: 150 },
             { field: 'source_product_code', headerName: 'Source Code', width: 150 },
-            // description e image_urls podem ser muito longos para exibir diretamente na tabela,
-            // mas você pode incluir se quiser e ajustar a largura ou usar um componente customizado
+            // description and image_urls can be too long to display directly in the table, TODO: Review this later.
             // { field: 'description', headerName: 'Description', flex: 2, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
             // { field: 'image_urls', headerName: 'Image URLs', flex: 1, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
             {

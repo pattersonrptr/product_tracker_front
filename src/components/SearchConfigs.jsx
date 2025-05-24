@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'; // Adicionado useRef aqui
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { DataGrid, GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add'; // Adicionado AddIcon
+import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
 import axios from 'axios';
-// import SourceWebsiteModal from './SourceWebsiteModal'; // Removido, pois será substituído
-import GenericFormModal from './GenericFormModal'; // Adicionado
-import SearchConfigForm from './SearchConfigForm'; // Adicionado
+import GenericFormModal from './GenericFormModal';
+import SearchConfigForm from './SearchConfigForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
 
@@ -18,7 +17,7 @@ const SearchConfigs = () => {
     const [rowSelection, setRowSelection] = useState([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentConfig, setCurrentConfig] = useState(null); // Corrigido: de currentWebsite para currentConfig
+    const [currentConfig, setCurrentConfig] = useState(null);
 
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
@@ -28,19 +27,19 @@ const SearchConfigs = () => {
     const [rowCount, setRowCount] = useState(0);
     const [filterModel, setFilterModel] = useState({ items: [] });
     const [sortModel, setSortModel] = useState([]);
-    const [isSavingConfig, setIsSavingConfig] = useState(false); // Adicionado para controle de salvamento
+    const [isSavingConfig, setIsSavingConfig] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const searchConfigFormRef = useRef(null); // Adicionado: A ref para o formulário
+    const searchConfigFormRef = useRef(null);
 
-    const fetchSearchConfigs = useCallback(async () => { // Renomeado para maior clareza
+    const fetchSearchConfigs = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const token = localStorage.getItem('token');
             const params = {
-                page: paginationModel.page + 1, // API usually expects 1-based page number
+                page: paginationModel.page + 1,
                 page_size: paginationModel.pageSize,
                 sort_by: sortModel.length > 0 ? sortModel[0].field : undefined,
                 sort_order: sortModel.length > 0 ? sortModel[0].sort : undefined,
@@ -65,7 +64,7 @@ const SearchConfigs = () => {
         } finally {
             setLoading(false);
         }
-    }, [paginationModel, sortModel, filterModel, enqueueSnackbar]); // Dependências atualizadas
+    }, [paginationModel, sortModel, filterModel, enqueueSnackbar]);
 
     useEffect(() => {
         fetchSearchConfigs();
@@ -73,15 +72,14 @@ const SearchConfigs = () => {
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
-        setCurrentConfig(null); // Limpa a config atual ao fechar
+        setCurrentConfig(null);
     }, []);
 
     const handleSaveSearchConfig = useCallback(async () => {
         if (!searchConfigFormRef.current) return;
 
-        const configData = searchConfigFormRef.current.getFormData(); // Obtém os dados do formulário
+        const configData = searchConfigFormRef.current.getFormData();
 
-        // Validações básicas (pode expandir no SearchConfigForm.jsx ou aqui)
         if (!configData.search_term || configData.search_term.trim() === '') {
             enqueueSnackbar('Search Term is required.', { variant: 'error' });
             return;
@@ -144,8 +142,9 @@ const SearchConfigs = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/search_configs/bulk/delete', { ids: rowSelection }, {
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            await axios.delete('http://127.0.0.1:8000/search_configs/bulk/delete', {
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                data: { ids: rowSelection }
             });
             enqueueSnackbar('Selected Search Configs deleted successfully!', { variant: 'success' });
             setRowSelection([]);
@@ -242,7 +241,6 @@ const SearchConfigs = () => {
                         Delete Selected ({rowSelection.length})
                     </Button>
                 )}
-                {/* Você pode adicionar mais itens de toolbar aqui, se necessário */}
             </GridToolbarContainer>
         );
     }
@@ -257,7 +255,6 @@ const SearchConfigs = () => {
                 <Typography variant="h6" component="div">
                     Search Configurations
                 </Typography>
-                {/* A toolbar customizada agora é renderizada pelo DataGrid */}
             </Toolbar>
             <DataGrid
                 rows={rows}
@@ -276,13 +273,13 @@ const SearchConfigs = () => {
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
                     toolbar: {
-                        // Você pode passar props adicionais para CustomToolbar aqui se ela precisar
+                        // You can pass additional props to CustomToolbar here if needed
                     },
                 }}
                 onRowSelectionModelChange={setRowSelection}
                 rowSelectionModel={rowSelection}
                 checkboxSelection
-                disableRowSelectionOnClick // Impede a seleção ao clicar na linha
+                disableRowSelectionOnClick
             />
             <GenericFormModal
                 open={isModalOpen}
@@ -291,7 +288,6 @@ const SearchConfigs = () => {
                 title={currentConfig ? "Edit Search Config" : "Create New Search Config"}
                 isSaving={isSavingConfig}
             >
-                {/* Renderiza o formulário específico de Search Config aqui */}
                 <SearchConfigForm initialData={currentConfig} ref={searchConfigFormRef} />
             </GenericFormModal>
             <ConfirmationDialog
