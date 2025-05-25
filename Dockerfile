@@ -1,5 +1,4 @@
-# Build stage
-FROM node:20.19.1 AS builder
+FROM node:18.20.8
 
 WORKDIR /app
 
@@ -9,18 +8,6 @@ RUN npm install
 
 COPY . .
 
-RUN npm run build
+EXPOSE 3000
 
-# Final stage, serving the built files
-FROM nginx:alpine
-
-RUN rm -rf /usr/share/nginx/html/*
-
-COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copy nginx.conf customized configuration file (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "start"]

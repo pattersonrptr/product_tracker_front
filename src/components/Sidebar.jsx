@@ -1,24 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import './Sidebar.css';
-
-function Sidebar() {
+const Sidebar = () => {
   return (
-    <div className="sidebar">
+    <aside style={{ width: '200px', backgroundColor: '#e0e0e0', padding: '20px' }}>
       <ul>
-        <li>
-          <Link to="/products">Products</Link>
-        </li>
-        <li>
-          <Link to="/search-config">Searches</Link>
-        </li>
-        <li>
-          <Link to="/add-website">Web Sites</Link>
-        </li>
+        <li><Link to="/products">Products</Link></li>
+        <li><Link to="/search-configs">Search Configs</Link></li>
+        <li><Link to="/source-websites">Source Websites</Link></li>
       </ul>
-    </div>
+    </aside>
   );
-}
+};
 
 export default Sidebar;
