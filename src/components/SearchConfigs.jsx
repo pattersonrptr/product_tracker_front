@@ -264,7 +264,7 @@ const SearchConfigs = () => {
                     </Button>
                 )}
                 <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateConfigModal}>
-                    Add Product
+                    Add Search
                 </Button>
                 
                 <GridSeparatorIcon sx={{ mx: 1 }} />

@@ -263,7 +263,7 @@ const SourceWebsites = () => {
                     </Button>
                 )}
                 <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateWebsiteModal}>
-                    Add Product
+                    Add Website
                 </Button>
                 
                 <GridSeparatorIcon sx={{ mx: 1 }} />
