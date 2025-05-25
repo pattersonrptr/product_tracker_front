@@ -1,8 +1,13 @@
-version: '3.8'
-
 services:
-  react-app:
-    build: .
+  frontend:
+    build:
+      context: .
     ports:
-      - "3000:80"
-    restart: unless-stopped
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+    stdin_open: true
+    environment:
+      - NODE_ENV=development
+      - NODE_OPTIONS=--openssl-legacy-provider

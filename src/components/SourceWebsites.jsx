@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { DataGrid, GridActionsCellItem, GridToolbarContainer } from '@mui/x-data-grid';
+import { 
+    DataGrid,
+    GridActionsCellItem,
+    GridToolbarContainer,
+    GridToolbarColumnsButton,
+    GridToolbarFilterButton,
+    GridToolbarDensitySelector,
+    GridToolbarExport, 
+    GridSeparatorIcon
+} from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
@@ -240,14 +249,31 @@ const SourceWebsites = () => {
     function CustomToolbar() {
         return (
             <GridToolbarContainer>
-                <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateWebsiteModal}>
-                    Add Website
-                </Button>
+                <GridToolbarColumnsButton />
+                <GridToolbarFilterButton />
+                <GridToolbarDensitySelector
+                    slotProps={{ tooltip: { title: 'Change density' } }}
+                />
+
+                <Box sx={{ flexGrow: 1 }} />
+
                 {rowSelection.length > 0 && (
                     <Button color="error" startIcon={<DeleteIcon />} onClick={handleBulkDelete}>
                         Delete Selected ({rowSelection.length})
                     </Button>
                 )}
+                <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateWebsiteModal}>
+                    Add Product
+                </Button>
+                
+                <GridSeparatorIcon sx={{ mx: 1 }} />
+
+                <GridToolbarExport
+                    slotProps={{
+                        tooltip: { title: 'Export data' },
+                        button: { variant: 'outlined' },
+                    }}
+                />
             </GridToolbarContainer>
         );
     }

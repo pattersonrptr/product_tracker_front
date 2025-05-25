@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Home from './components/Home';
@@ -12,18 +12,28 @@ import Products from './components/Products';
 import axios from 'axios';
 import './App.css';
 import { SnackbarProvider } from 'notistack';
+import { jwtDecode } from 'jwt-decode';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [username, setUsername] = useState('');
 
   const saveToken = (newToken) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
+    // Decode username from token
+    try {
+      const decoded = jwtDecode(newToken);
+      setUsername(decoded.username || decoded.sub || '');
+    } catch {
+      setUsername('');
+    }
   };
 
   const clearToken = () => {
     localStorage.removeItem('token');
     setToken(null);
+    setUsername('');
   };
 
   useEffect(() => {
@@ -33,9 +43,17 @@ function App() {
         try {
           await axios.post('http://127.0.0.1:8000/auth/verify-token', { token: storedToken });
           setToken(storedToken);
+          // Decode username from token
+          try {
+            const decoded = jwtDecode(storedToken);
+            setUsername(decoded.username || decoded.sub || '');
+          } catch {
+            setUsername('');
+          }
         } catch (error) {
           localStorage.removeItem('token');
           setToken(null);
+          setUsername('');
         }
       };
       verifyToken();
@@ -47,12 +65,12 @@ function App() {
       <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
         {token ? (
           <>
-            <Header />
+            <Header username={username} onLogout={clearToken} />
             <div style={{ display: 'flex', flex: 1 }}>
               <Sidebar />
               <Main>
                 <Routes>
-                  <Route path="/" element={<Home clearToken={clearToken} />} />
+                  <Route path="/" element={<Home />} />
                   <Route path="/source-websites" element={<SourceWebsites />} />
                   <Route path="/search-configs" element={<SearchConfigs />} />
                   <Route path="/products" element={<Products />} />
