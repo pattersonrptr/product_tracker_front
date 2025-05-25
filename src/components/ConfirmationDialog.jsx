@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component }  from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 
 const ConfirmationDialog = ({ open, title, message, onConfirm, onCancel }) => {
