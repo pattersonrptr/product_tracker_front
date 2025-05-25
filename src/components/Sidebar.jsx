@@ -8,7 +8,6 @@ const Sidebar = () => {
         <li><Link to="/products">Products</Link></li>
         <li><Link to="/search-configs">Search Configs</Link></li>
         <li><Link to="/source-websites">Source Websites</Link></li>
-        
       </ul>
     </aside>
   );
