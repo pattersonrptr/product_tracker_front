@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ onLogout, isLoggedIn }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const navigate = useNavigate();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -21,8 +23,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
 
     const handleSuaContaClick = () => {
         handleClose();
-        // Futurely, we will add navigation to the "Your Account" page (Home) here.
-        // navigate('/'); // Example: we will use useNavigate here in the future
+        navigate('/');
     };
 
     return (
