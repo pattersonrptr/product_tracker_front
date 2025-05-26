@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
     Container,
     Box,
@@ -12,9 +12,11 @@ import {
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 
-const Login = ({ saveToken }) => {
+const Register = () => {
     const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
@@ -22,17 +24,25 @@ const Login = ({ saveToken }) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
+
+        if (password !== confirmPassword) {
+            enqueueSnackbar('Passwords do not match.', { variant: 'error' });
+            setLoading(false);
+            return;
+        }
+
         try {
-            const response = await axios.post('http://127.0.0.1:8000/auth/login', new URLSearchParams({
+            const response = await axios.post('http://127.0.0.1:8000/register', {
                 username: username,
+                email: email,
                 password: password,
-            }));
-            saveToken(response.data.access_token);
-            enqueueSnackbar('Login successful!', { variant: 'success' });
-            navigate('/');
+            });
+
+            enqueueSnackbar('Registration successful! Please log in.', { variant: 'success' });
+            navigate('/login');
         } catch (error) {
-            console.error('Login error:', error);
-            const errorMessage = error.response?.data?.detail || 'Login failed. Please check your credentials.';
+            console.error('Registration error:', error);
+            const errorMessage = error.response?.data?.detail || 'Registration failed. Please try again.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
         } finally {
             setLoading(false);
@@ -50,7 +60,7 @@ const Login = ({ saveToken }) => {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                    Sign In
+                    Register New Account
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
@@ -69,13 +79,36 @@ const Login = ({ saveToken }) => {
                         margin="normal"
                         required
                         fullWidth
+                        id="email"
+                        label="Email Address"
+                        name="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
                         name="password"
                         label="Password"
                         type="password"
                         id="password"
-                        autoComplete="current-password"
+                        autoComplete="new-password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="confirmPassword"
+                        label="Confirm Password"
+                        type="password"
+                        id="confirmPassword"
+                        autoComplete="new-password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                     <Button
                         type="submit"
@@ -84,11 +117,11 @@ const Login = ({ saveToken }) => {
                         sx={{ mt: 3, mb: 2 }}
                         disabled={loading}
                     >
-                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Register'}
                     </Button>
                     <Box sx={{ textAlign: 'center' }}>
-                        <Link href="/register" variant="body2">
-                            Don't have an account? Register here.
+                        <Link href="/login" variant="body2">
+                            Already have an account? Sign In
                         </Link>
                     </Box>
                 </Box>
@@ -97,4 +130,4 @@ const Login = ({ saveToken }) => {
     );
 };
 
-export default Login;
+export default Register;

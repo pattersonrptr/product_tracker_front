@@ -5,31 +5,29 @@ import {
     FormControlLabel,
     Box,
     InputAdornment,
-    FormControl,     // Adicionado para Select
-    InputLabel,      // Adicionado para Select
-    Select,          // Adicionado para Select
-    MenuItem         // Adicionado para Select
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
-import axios from 'axios'; // Adicionado para buscar source_websites
+import axios from 'axios';
 
 const ProductForm = forwardRef(({ initialData }, ref) => {
-    // Definindo os estados com base nos campos da entidade Product do backend
     const [url, setUrl] = useState('');
     const [title, setTitle] = useState('');
-    const [sourceWebsiteId, setSourceWebsiteId] = useState(''); // Campo obrigatório
+    const [sourceWebsiteId, setSourceWebsiteId] = useState('');
     const [description, setDescription] = useState('');
     const [sourceProductCode, setSourceProductCode] = useState('');
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [condition, setCondition] = useState('');
     const [sellerName, setSellerName] = useState('');
-    const [isAvailable, setIsAvailable] = useState(true); // Default True
-    const [imageUrls, setImageUrls] = useState(''); // Era 'imageUrl' antes, agora 'image_urls'
-    const [currentPrice, setCurrentPrice] = useState(''); // Era 'price' antes, agora 'current_price'
+    const [isAvailable, setIsAvailable] = useState(true);
+    const [imageUrls, setImageUrls] = useState('');
+    const [currentPrice, setCurrentPrice] = useState('');
 
-    const [sourceWebsites, setSourceWebsites] = useState([]); // Estado para popular o Select de Source Website
+    const [sourceWebsites, setSourceWebsites] = useState([]);
 
-    // Efeito para popular o formulário ou resetar
     useEffect(() => {
         if (initialData) {
             setUrl(initialData.url || '');
@@ -45,7 +43,6 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
             setImageUrls(initialData.image_urls || '');
             setCurrentPrice(initialData.current_price !== undefined ? initialData.current_price : '');
         } else {
-            // Reseta os campos para novos produtos
             setUrl('');
             setTitle('');
             setSourceWebsiteId('');
@@ -61,12 +58,10 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
         }
     }, [initialData]);
 
-    // Efeito para buscar as Source Websites para o Select
     useEffect(() => {
         const fetchSourceWebsites = async () => {
             try {
                 const token = localStorage.getItem('token');
-                // Busque todas as source_websites para o dropdown
                 const response = await axios.get('http://127.0.0.1:8000/source_websites/?page_size=100', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -76,15 +71,14 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
             }
         };
         fetchSourceWebsites();
-    }, []); // Executa apenas uma vez ao montar o componente
+    }, []);
 
-    // Expondo uma função para o componente pai obter os dados do formulário
     useImperativeHandle(ref, () => ({
         getFormData: () => ({
             url: url,
             title: title,
-            source_website_id: parseInt(sourceWebsiteId), // Garante que é int
-            description: description || null, // Optional fields should be null if empty string
+            source_website_id: parseInt(sourceWebsiteId),
+            description: description || null,
             source_product_code: sourceProductCode || null,
             city: city || null,
             state: state || null,
@@ -92,8 +86,8 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
             seller_name: sellerName || null,
             is_available: isAvailable,
             image_urls: imageUrls || null,
-            current_price: parseFloat(currentPrice) || null, // Optional float
-            // created_at, updated_at, source_metadata, id são gerenciados pelo backend
+            current_price: parseFloat(currentPrice) || null,
+            // created_at, updated_at, source_metadata, id are managed by the backend
         })
     }));
 
@@ -109,7 +103,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                required // Adicionado como obrigatório
+                required
             />
             <TextField
                 margin="dense"
@@ -120,7 +114,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                required // Adicionado como obrigatório
+                required
             />
             <FormControl fullWidth margin="dense" variant="outlined" required>
                 <InputLabel id="source-website-label">Source Website</InputLabel>
@@ -207,7 +201,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 margin="dense"
                 id="image_urls"
                 label="Image URLs (comma separated)"
-                type="text" // Mantendo como texto por ser Optional[str], o backend pode separar ou aceitar lista
+                type="text"
                 fullWidth
                 variant="outlined"
                 value={imageUrls}

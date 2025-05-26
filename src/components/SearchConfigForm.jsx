@@ -1,16 +1,12 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TextField, Checkbox, FormControlLabel, Box } from '@mui/material';
 
-// Usamos forwardRef e useImperativeHandle para expor um método 'getFormData'
-// que o componente pai (SearchConfigs) poderá chamar para obter os dados do formulário.
 const SearchConfigForm = forwardRef(({ initialData }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [frequencyDays, setFrequencyDays] = useState('');
     const [preferredTime, setPreferredTime] = useState('');
     const [isActive, setIsActive] = useState(true);
 
-    // Efeito para popular o formulário quando `initialData` muda (modo de edição)
-    // ou resetar quando `initialData` é nulo (modo de criação)
     useEffect(() => {
         if (initialData) {
             setSearchTerm(initialData.search_term || '');
@@ -25,11 +21,10 @@ const SearchConfigForm = forwardRef(({ initialData }, ref) => {
         }
     }, [initialData]);
 
-    // Expondo uma função para o componente pai obter os dados do formulário
     useImperativeHandle(ref, () => ({
         getFormData: () => ({
             search_term: searchTerm,
-            frequency_days: parseInt(frequencyDays) || 0, // Garante que seja número
+            frequency_days: parseInt(frequencyDays) || 0,
             preferred_time: preferredTime,
             is_active: isActive,
         })

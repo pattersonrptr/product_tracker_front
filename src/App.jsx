@@ -10,6 +10,7 @@ import SourceWebsites from './components/SourceWebsites';
 import SearchConfigs from './components/SearchConfigs';
 import Products from './components/Products';
 import ConfirmationDialog from './components/ConfirmationDialog';
+import Register from './components/Register';
 import axios from 'axios';
 import './App.css';
 import { SnackbarProvider, useSnackbar } from 'notistack';
@@ -93,6 +94,7 @@ function App() {
         ) : (
           <Routes>
             <Route path="/login" element={<Login saveToken={saveToken} />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </Routes>
         )}
