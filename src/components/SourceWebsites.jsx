@@ -13,7 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import SourceWebsiteForm from './SourceWebsiteForm';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -68,7 +68,7 @@ const SourceWebsites = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/source_websites/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`http://127.0.0.1:8000/source_websites/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
@@ -110,12 +110,12 @@ const SourceWebsites = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentWebsite) {
-                await axios.put(`http://127.0.0.1:8000/source_websites/${currentWebsite.id}`, websiteData, {
+                await axiosInstance.put(`http://127.0.0.1:8000/source_websites/${currentWebsite.id}`, websiteData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('Website updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/source_websites/', websiteData, {
+                await axiosInstance.post('http://127.0.0.1:8000/source_websites/', websiteData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('New Website created successfully!', { variant: 'success' });
@@ -141,7 +141,7 @@ const SourceWebsites = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/source_websites/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`http://127.0.0.1:8000/source_websites/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Source Website deleted successfully!', { variant: 'success' });
@@ -159,7 +159,7 @@ const SourceWebsites = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/source_websites/bulk/delete', {
+            await axiosInstance.delete('http://127.0.0.1:8000/source_websites/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });

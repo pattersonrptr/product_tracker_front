@@ -10,7 +10,7 @@ import {
     Select,
     MenuItem
 } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 
 const ProductForm = forwardRef(({ initialData }, ref) => {
     const [url, setUrl] = useState('');
@@ -62,7 +62,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
         const fetchSourceWebsites = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://127.0.0.1:8000/source_websites/?page_size=100', {
+                const response = await axiosInstance.get('http://127.0.0.1:8000/source_websites/?page_size=100', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setSourceWebsites(response.data.items);

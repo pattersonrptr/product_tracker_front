@@ -13,7 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import SearchConfigForm from './SearchConfigForm';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -68,7 +68,7 @@ const SearchConfigs = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/search_configs/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`http://127.0.0.1:8000/search_configs/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
@@ -110,12 +110,12 @@ const SearchConfigs = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentConfig) {
-                await axios.put(`http://127.0.0.1:8000/search_configs/${currentConfig.id}`, configData, {
+                await axiosInstance.put(`http://127.0.0.1:8000/search_configs/${currentConfig.id}`, configData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('Search Config updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/search_configs/', configData, {
+                await axiosInstance.post('http://127.0.0.1:8000/search_configs/', configData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('New Search Config created successfully!', { variant: 'success' });
@@ -141,7 +141,7 @@ const SearchConfigs = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/search_configs/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`http://127.0.0.1:8000/search_configs/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Search Config deleted successfully!', { variant: 'success' });
@@ -159,7 +159,7 @@ const SearchConfigs = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/search_configs/bulk/delete', {
+            await axiosInstance.delete('http://127.0.0.1:8000/search_configs/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });

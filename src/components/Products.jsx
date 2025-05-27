@@ -13,7 +13,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import ProductForm from './ProductForm';
 import ConfirmationDialog from './ConfirmationDialog';
@@ -68,7 +68,7 @@ const Products = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/products/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`http://127.0.0.1:8000/products/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
@@ -122,12 +122,12 @@ const Products = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentProduct) {
-                await axios.put(`http://127.0.0.1:8000/products/${currentProduct.id}`, productData, {
+                await axiosInstance.put(`http://127.0.0.1:8000/products/${currentProduct.id}`, productData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('Product updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/products/', productData, {
+                await axiosInstance.post('http://127.0.0.1:8000/products/', productData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('New Product created successfully!', { variant: 'success' });
@@ -153,7 +153,7 @@ const Products = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/products/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`http://127.0.0.1:8000/products/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Product deleted successfully!', { variant: 'success' });
@@ -171,7 +171,7 @@ const Products = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/products/bulk/delete', {
+            await axiosInstance.delete('http://127.0.0.1:8000/products/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 import {
     Container,
@@ -11,23 +11,29 @@ import {
     CircularProgress,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
+import { useAuth } from '../context/AuthContext';
 
-const Login = ({ saveToken }) => {
+const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
+    const { login } = useAuth();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.post('http://127.0.0.1:8000/auth/login', new URLSearchParams({
+            const response = await axiosInstance.post('/auth/login', new URLSearchParams({
                 username: username,
                 password: password,
-            }));
-            saveToken(response.data.access_token);
+            }), {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            });
+            login(response.data.access_token);
             enqueueSnackbar('Login successful!', { variant: 'success' });
             navigate('/');
         } catch (error) {
