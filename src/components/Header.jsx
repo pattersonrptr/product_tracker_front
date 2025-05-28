@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box, useTheme } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,6 +7,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -27,11 +28,32 @@ const Header = ({ onLogout, isLoggedIn }) => {
     };
 
     return (
-        <AppBar position="fixed">
+        <AppBar
+            position="fixed"
+            sx={{
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                backgroundImage: 'linear-gradient(to right, #3f51b5, #3f51b5, #5c6bc0)',
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+            }}
+        >
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{
+                        flexGrow: 0,
+                        mr: 3,
+                        fontWeight: 600,
+                        letterSpacing: '0.05em',
+                        color: '#ffffff',
+                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
+                    }}
+                >
                     Product Tracker
                 </Typography>
+
+                <Box sx={{ flexGrow: 1 }} />
+
                 {isLoggedIn && (
                     <Box>
                         <IconButton
