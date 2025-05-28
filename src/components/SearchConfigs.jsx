@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { 
+import {
     DataGrid,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarColumnsButton,
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
-    GridToolbarExport, 
+    GridToolbarExport,
     GridSeparatorIcon
 } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import SearchConfigForm from './SearchConfigForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
+import PageHeader from './PageHeader';
 
 const SearchConfigs = () => {
     const [rows, setRows] = useState([]);
@@ -39,7 +40,6 @@ const SearchConfigs = () => {
     const [isSavingConfig, setIsSavingConfig] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
-
     const searchConfigFormRef = useRef(null);
 
     const fetchSearchConfigs = useCallback(async () => {
@@ -68,12 +68,14 @@ const SearchConfigs = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/search_configs/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`/search_configs/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
+
             setRows(response.data.items);
-            setRowCount(response.data.total_count);
+            setRowCount(response.data.total_count !== undefined && response.data.total_count !== null ? response.data.total_count : 0);
+
         } catch (err) {
             console.error('Error fetching search configs:', err);
             setError(err);
@@ -110,21 +112,21 @@ const SearchConfigs = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentConfig) {
-                await axios.put(`http://127.0.0.1:8000/search_configs/${currentConfig.id}`, configData, {
+                await axiosInstance.put(`/search_configs/${currentConfig.id}`, configData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
-                enqueueSnackbar('Search Config updated successfully!', { variant: 'success' });
+                enqueueSnackbar('Search configuration updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/search_configs/', configData, {
+                await axiosInstance.post('/search_configs/', configData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
-                enqueueSnackbar('New Search Config created successfully!', { variant: 'success' });
+                enqueueSnackbar('New search configuration created successfully!', { variant: 'success' });
             }
             fetchSearchConfigs();
             handleCloseModal();
         } catch (err) {
-            console.error('Error saving Search Config:', err);
-            const errorMessage = err.response?.data?.detail || 'Error saving Search Config. Please check the data.';
+            console.error('Error saving search config:', err);
+            const errorMessage = err.response?.data?.detail || 'Error saving search configuration. Please check the data.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
         } finally {
             setIsSavingConfig(false);
@@ -141,14 +143,14 @@ const SearchConfigs = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/search_configs/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`/search_configs/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                enqueueSnackbar('Search Config deleted successfully!', { variant: 'success' });
+                enqueueSnackbar('Search configuration deleted successfully!', { variant: 'success' });
                 fetchSearchConfigs();
             } catch (err) {
                 console.error('Error deleting search config:', err);
-                enqueueSnackbar('Failed to delete search config.', { variant: 'error' });
+                enqueueSnackbar('Failed to delete search configuration.', { variant: 'error' });
             } finally {
                 setItemToDeleteId(null);
             }
@@ -159,16 +161,16 @@ const SearchConfigs = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/search_configs/bulk/delete', {
+            await axiosInstance.delete('/search_configs/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });
-            enqueueSnackbar('Selected Search Configs deleted successfully!', { variant: 'success' });
+            enqueueSnackbar('Selected search configurations deleted successfully!', { variant: 'success' });
             setRowSelection([]);
             fetchSearchConfigs();
         } catch (err) {
             console.error('Error deleting selected search configs:', err);
-            enqueueSnackbar('Failed to delete selected search configs.', { variant: 'error' });
+            enqueueSnackbar('Failed to delete selected search configurations.', { variant: 'error' });
         }
     }, [rowSelection, enqueueSnackbar, fetchSearchConfigs]);
 
@@ -193,7 +195,6 @@ const SearchConfigs = () => {
         setIsConfirmDialogOpen(true);
     }, [rowSelection, enqueueSnackbar]);
 
-
     const confirmDialogTitle = useMemo(() => {
         if (confirmAction === 'singleDelete') return 'Confirm Deletion';
         if (confirmAction === 'bulkDelete') return `Confirm Deletion of ${rowSelection.length} Items`;
@@ -208,11 +209,21 @@ const SearchConfigs = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 90 },
+            { field: 'id', headerName: 'ID', width: 70, renderCell: (params) => `#${params.value}` },
             { field: 'search_term', headerName: 'Search Term', flex: 1 },
             { field: 'frequency_days', headerName: 'Frequency (Days)', width: 150, type: 'number' },
             { field: 'preferred_time', headerName: 'Preferred Time', width: 150, type: 'string' },
             { field: 'is_active', headerName: 'Active', width: 100, type: 'boolean' },
+            {
+                field: 'created_at',
+                headerName: 'Created At',
+                width: 180,
+                type: 'dateTime',
+                valueFormatter: (params) => {
+                    if (!params || params.value === null || params.value === undefined) return '';
+                    return new Date(params.value).toLocaleString();
+                },
+            },
             {
                 field: 'actions',
                 type: 'actions',
@@ -255,7 +266,6 @@ const SearchConfigs = () => {
                 <GridToolbarDensitySelector
                     slotProps={{ tooltip: { title: 'Change density' } }}
                 />
-
                 <Box sx={{ flexGrow: 1 }} />
 
                 {rowSelection.length > 0 && (
@@ -264,9 +274,9 @@ const SearchConfigs = () => {
                     </Button>
                 )}
                 <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateConfigModal}>
-                    Add Search
+                    Add Config
                 </Button>
-                
+
                 <GridSeparatorIcon sx={{ mx: 1 }} />
 
                 <GridToolbarExport
@@ -280,20 +290,24 @@ const SearchConfigs = () => {
     }
 
     if (error) {
-        return <Typography color="error">Error: {error.message}</Typography>;
+        return (
+            <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
+                <PageHeader title="Search Configurations" subtitle="Error loading configurations" divider={false} />
+                <Typography variant="body1">Failed to load search configurations: {error.message}</Typography>
+            </Box>
+        );
     }
 
     return (
         <Box sx={{ width: '100%', minHeight: 400 }}>
-            <Toolbar sx={{ justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6" component="div">
-                    Search Configurations
-                </Typography>
-            </Toolbar>
+            <PageHeader
+                title="Search Configurations"
+                subtitle="Manage your automated product search settings."
+            />
             <DataGrid
                 rows={rows}
                 columns={columns}
-                pageSizeOptions={[2, 10, 25, 50, 100]}
+                pageSizeOptions={[10, 25, 50, 100]}
                 rowCount={rowCount}
                 paginationMode="server"
                 paginationModel={paginationModel}
@@ -302,14 +316,11 @@ const SearchConfigs = () => {
                 sortModel={sortModel}
                 onSortModelChange={setSortModel}
                 filterMode="server"
-                filterModel={filterModel}
                 onFilterModelChange={setFilterModel}
                 loading={loading}
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
-                    toolbar: {
-                        // You can pass additional props to CustomToolbar here if needed
-                    },
+                    toolbar: {},
                 }}
                 onRowSelectionModelChange={setRowSelection}
                 rowSelectionModel={rowSelection}
@@ -320,7 +331,7 @@ const SearchConfigs = () => {
                 open={isModalOpen}
                 onClose={handleCloseModal}
                 onSave={handleSaveSearchConfig}
-                title={currentConfig ? "Edit Search Config" : "Create New Search Config"}
+                title={currentConfig ? "Edit Search Configuration" : "Create New Search Configuration"}
                 isSaving={isSavingConfig}
             >
                 <SearchConfigForm initialData={currentConfig} ref={searchConfigFormRef} />

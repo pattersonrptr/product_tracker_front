@@ -1,23 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { 
+import {
     DataGrid,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarColumnsButton,
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
-    GridToolbarExport, 
+    GridToolbarExport,
     GridSeparatorIcon
 } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import SourceWebsiteForm from './SourceWebsiteForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
+import PageHeader from './PageHeader';
 
 const SourceWebsites = () => {
     const [rows, setRows] = useState([]);
@@ -39,10 +40,9 @@ const SourceWebsites = () => {
     const [isSavingWebsite, setIsSavingWebsite] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
-
     const sourceWebsiteFormRef = useRef(null);
 
-    const fetchWebsites = useCallback(async () => {
+    const fetchSourceWebsites = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
@@ -68,12 +68,14 @@ const SourceWebsites = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/source_websites/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`/source_websites/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
+
             setRows(response.data.items);
-            setRowCount(response.data.total_count);
+            setRowCount(response.data.total_count !== undefined && response.data.total_count !== null ? response.data.total_count : 0);
+
         } catch (err) {
             console.error('Error fetching source websites:', err);
             setError(err);
@@ -84,15 +86,15 @@ const SourceWebsites = () => {
     }, [paginationModel, sortModel, filterModel, enqueueSnackbar]);
 
     useEffect(() => {
-        fetchWebsites();
-    }, [fetchWebsites]);
+        fetchSourceWebsites();
+    }, [fetchSourceWebsites]);
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
         setCurrentWebsite(null);
     }, []);
 
-    const handleSaveWebsite = useCallback(async () => {
+    const handleSaveSourceWebsite = useCallback(async () => {
         if (!sourceWebsiteFormRef.current) return;
 
         const websiteData = sourceWebsiteFormRef.current.getFormData();
@@ -110,26 +112,26 @@ const SourceWebsites = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentWebsite) {
-                await axios.put(`http://127.0.0.1:8000/source_websites/${currentWebsite.id}`, websiteData, {
+                await axiosInstance.put(`/source_websites/${currentWebsite.id}`, websiteData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
-                enqueueSnackbar('Website updated successfully!', { variant: 'success' });
+                enqueueSnackbar('Source website updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/source_websites/', websiteData, {
+                await axiosInstance.post('/source_websites/', websiteData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
-                enqueueSnackbar('New Website created successfully!', { variant: 'success' });
+                enqueueSnackbar('New source website created successfully!', { variant: 'success' });
             }
-            fetchWebsites();
+            fetchSourceWebsites();
             handleCloseModal();
         } catch (err) {
-            console.error('Error saving website:', err);
-            const errorMessage = err.response?.data?.detail || 'Error saving website. Please check the data.';
+            console.error('Error saving source website:', err);
+            const errorMessage = err.response?.data?.detail || 'Error saving source website. Please check the data.';
             enqueueSnackbar(errorMessage, { variant: 'error' });
         } finally {
             setIsSavingWebsite(false);
         }
-    }, [currentWebsite, enqueueSnackbar, fetchWebsites, handleCloseModal]);
+    }, [currentWebsite, enqueueSnackbar, fetchSourceWebsites, handleCloseModal]);
 
     const handleOpenCreateWebsiteModal = useCallback(() => {
         setCurrentWebsite(null);
@@ -141,11 +143,11 @@ const SourceWebsites = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/source_websites/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`/source_websites/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                enqueueSnackbar('Source Website deleted successfully!', { variant: 'success' });
-                fetchWebsites();
+                enqueueSnackbar('Source website deleted successfully!', { variant: 'success' });
+                fetchSourceWebsites();
             } catch (err) {
                 console.error('Error deleting source website:', err);
                 enqueueSnackbar('Failed to delete source website.', { variant: 'error' });
@@ -153,24 +155,24 @@ const SourceWebsites = () => {
                 setItemToDeleteId(null);
             }
         }
-    }, [itemToDeleteId, enqueueSnackbar, fetchWebsites]);
+    }, [itemToDeleteId, enqueueSnackbar, fetchSourceWebsites]);
 
     const handleConfirmBulkDelete = useCallback(async () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/source_websites/bulk/delete', {
+            await axiosInstance.delete('/source_websites/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });
-            enqueueSnackbar('Selected Source Websites deleted successfully!', { variant: 'success' });
+            enqueueSnackbar('Selected source websites deleted successfully!', { variant: 'success' });
             setRowSelection([]);
-            fetchWebsites();
+            fetchSourceWebsites();
         } catch (err) {
             console.error('Error deleting selected source websites:', err);
             enqueueSnackbar('Failed to delete selected source websites.', { variant: 'error' });
         }
-    }, [rowSelection, enqueueSnackbar, fetchWebsites]);
+    }, [rowSelection, enqueueSnackbar, fetchSourceWebsites]);
 
     const handleCancelConfirmDialog = useCallback(() => {
         setIsConfirmDialogOpen(false);
@@ -193,7 +195,6 @@ const SourceWebsites = () => {
         setIsConfirmDialogOpen(true);
     }, [rowSelection, enqueueSnackbar]);
 
-
     const confirmDialogTitle = useMemo(() => {
         if (confirmAction === 'singleDelete') return 'Confirm Deletion';
         if (confirmAction === 'bulkDelete') return `Confirm Deletion of ${rowSelection.length} Items`;
@@ -208,10 +209,20 @@ const SourceWebsites = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 90 },
+            { field: 'id', headerName: 'ID', width: 70, renderCell: (params) => `#${params.value}` },
             { field: 'name', headerName: 'Name', flex: 1 },
             { field: 'base_url', headerName: 'Base URL', flex: 2 },
             { field: 'is_active', headerName: 'Active', width: 100, type: 'boolean' },
+            {
+                field: 'created_at',
+                headerName: 'Created At',
+                width: 180,
+                type: 'dateTime',
+                valueFormatter: (params) => {
+                    if (!params || params.value === null || params.value === undefined) return '';
+                    return new Date(params.value).toLocaleString();
+                },
+            },
             {
                 field: 'actions',
                 type: 'actions',
@@ -254,7 +265,6 @@ const SourceWebsites = () => {
                 <GridToolbarDensitySelector
                     slotProps={{ tooltip: { title: 'Change density' } }}
                 />
-
                 <Box sx={{ flexGrow: 1 }} />
 
                 {rowSelection.length > 0 && (
@@ -265,7 +275,7 @@ const SourceWebsites = () => {
                 <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateWebsiteModal}>
                     Add Website
                 </Button>
-                
+
                 <GridSeparatorIcon sx={{ mx: 1 }} />
 
                 <GridToolbarExport
@@ -279,20 +289,24 @@ const SourceWebsites = () => {
     }
 
     if (error) {
-        return <Typography color="error">Error: {error.message}</Typography>;
+        return (
+            <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
+                <PageHeader title="Source Websites" subtitle="Error loading source websites" divider={false} />
+                <Typography variant="body1">Failed to load source websites: {error.message}</Typography>
+            </Box>
+        );
     }
 
     return (
         <Box sx={{ width: '100%', minHeight: 400 }}>
-            <Toolbar sx={{ justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6" component="div">
-                    Source Websites
-                </Typography>
-            </Toolbar>
+            <PageHeader
+                title="Source Websites"
+                subtitle="Manage external websites for product tracking."
+            />
             <DataGrid
                 rows={rows}
                 columns={columns}
-                pageSizeOptions={[5, 10, 25, 50, 100]}
+                pageSizeOptions={[10, 25, 50, 100]}
                 rowCount={rowCount}
                 paginationMode="server"
                 paginationModel={paginationModel}
@@ -301,14 +315,11 @@ const SourceWebsites = () => {
                 sortModel={sortModel}
                 onSortModelChange={setSortModel}
                 filterMode="server"
-                filterModel={filterModel}
                 onFilterModelChange={setFilterModel}
                 loading={loading}
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{
-                    toolbar: {
-                        // You can pass additional props to CustomToolbar here if needed
-                    },
+                    toolbar: {},
                 }}
                 onRowSelectionModelChange={setRowSelection}
                 rowSelectionModel={rowSelection}
@@ -318,8 +329,8 @@ const SourceWebsites = () => {
             <GenericFormModal
                 open={isModalOpen}
                 onClose={handleCloseModal}
-                onSave={handleSaveWebsite}
-                title={currentWebsite ? "Edit Website" : "Register New Website"}
+                onSave={handleSaveSourceWebsite}
+                title={currentWebsite ? "Edit Source Website" : "Create New Source Website"}
                 isSaving={isSavingWebsite}
             >
                 <SourceWebsiteForm initialData={currentWebsite} ref={sourceWebsiteFormRef} />

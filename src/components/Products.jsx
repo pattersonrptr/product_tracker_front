@@ -1,23 +1,26 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { 
+import {
     DataGrid,
     GridActionsCellItem,
     GridToolbarContainer,
     GridToolbarColumnsButton,
     GridToolbarFilterButton,
     GridToolbarDensitySelector,
-    GridToolbarExport, 
+    GridToolbarExport,
     GridSeparatorIcon
 } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import { Button, Toolbar, Typography, Box } from '@mui/material';
-import axios from 'axios';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Button, Toolbar, Typography, Box, Link as MuiLink } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
+import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import ProductForm from './ProductForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
+import PageHeader from './PageHeader';
 
 const Products = () => {
     const [rows, setRows] = useState([]);
@@ -68,7 +71,7 @@ const Products = () => {
                 }
             });
 
-            const response = await axios.get(`http://127.0.0.1:8000/products/?${queryParams.toString()}`, {
+            const response = await axiosInstance.get(`/products/?${queryParams.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: params,
             });
@@ -122,12 +125,12 @@ const Products = () => {
         try {
             const token = localStorage.getItem('token');
             if (currentProduct) {
-                await axios.put(`http://127.0.0.1:8000/products/${currentProduct.id}`, productData, {
+                await axiosInstance.put(`/products/${currentProduct.id}`, productData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('Product updated successfully!', { variant: 'success' });
             } else {
-                await axios.post('http://127.0.0.1:8000/products/', productData, {
+                await axiosInstance.post('/products/', productData, {
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
                 enqueueSnackbar('New Product created successfully!', { variant: 'success' });
@@ -153,7 +156,7 @@ const Products = () => {
         if (itemToDeleteId) {
             try {
                 const token = localStorage.getItem('token');
-                await axios.delete(`http://127.0.0.1:8000/products/delete/${itemToDeleteId}`, {
+                await axiosInstance.delete(`/products/delete/${itemToDeleteId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 enqueueSnackbar('Product deleted successfully!', { variant: 'success' });
@@ -171,7 +174,7 @@ const Products = () => {
         setIsConfirmDialogOpen(false);
         try {
             const token = localStorage.getItem('token');
-            await axios.delete('http://127.0.0.1:8000/products/bulk/delete', {
+            await axiosInstance.delete('/products/bulk/delete', {
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 data: { ids: rowSelection }
             });
@@ -219,9 +222,49 @@ const Products = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 70 },
-            { field: 'title', headerName: 'Title', flex: 1.5 },
-            { field: 'url', headerName: 'URL', flex: 2 },
+            {
+                field: 'id',
+                headerName: 'ID',
+                width: 70,
+                renderCell: (params) => `#${params.value}`,
+            },
+            {
+                field: 'title',
+                headerName: 'Title',
+                flex: 1.5,
+                renderCell: (params) => (
+                    <MuiLink
+                        href={params.row.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            textDecoration: 'none',
+                            color: 'inherit',
+                            '&:hover': { textDecoration: 'underline' }
+                        }}
+                    >
+                        {params.row.image_urls && (
+                            <Box
+                                component="img"
+                                src={params.row.image_urls}
+                                alt="Product"
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    border: '1px solid #eee',
+                                    background: '#fafafa',
+                                    mr: 1.2,
+                                }}
+                            />
+                        )}
+                        {params.value}
+                    </MuiLink>
+                ),
+            },
             { field: 'source_website_id', headerName: 'Source Website ID', width: 150 },
             { field: 'current_price', headerName: 'Price', width: 100, type: 'number',
               valueFormatter: (value) => value !== null ? `R$ ${value.toFixed(2)}` : ''
@@ -232,38 +275,56 @@ const Products = () => {
             { field: 'condition', headerName: 'Condition', width: 120 },
             { field: 'seller_name', headerName: 'Seller', width: 150 },
             { field: 'source_product_code', headerName: 'Source Code', width: 150 },
-            // description and image_urls can be too long to display directly in the table, TODO: Review this later.
-            // { field: 'description', headerName: 'Description', flex: 2, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
-            // { field: 'image_urls', headerName: 'Image URLs', flex: 1, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
             {
                 field: 'actions',
                 type: 'actions',
                 headerName: 'Actions',
-                width: 100,
+                width: 90,
                 cellClassName: 'actions',
-                getActions: ({ id }) => {
-                    return [
+                renderCell: (params) => (
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', justifyContent: 'center', width: '100%' }}>
                         <GridActionsCellItem
-                            icon={<EditIcon />}
+                            icon={
+                                <Box component="span" title="View" sx={{ p: 0, m: 0, minWidth: 0 }}>
+                                    <VisibilityIcon fontSize="small" />
+                                </Box>
+                            }
+                            label="View"
+                            onClick={() => window.open(`/products/${params.id}`, '_blank', 'noopener,noreferrer')}
+                            color="inherit"
+                            showInMenu={false}
+                        />
+                        <GridActionsCellItem
+                            icon={
+                                <Box component="span" title="Edit" sx={{ p: 0, m: 0, minWidth: 0 }}>
+                                    <EditIcon fontSize="small" />
+                                </Box>
+                            }
                             label="Edit"
                             className="textPrimary"
                             onClick={() => {
-                                const productToEdit = rows.find(row => row.id === id);
+                                const productToEdit = rows.find(row => row.id === params.id);
                                 if (productToEdit) {
                                     setCurrentProduct(productToEdit);
                                     setIsModalOpen(true);
                                 }
                             }}
                             color="inherit"
-                        />,
+                            showInMenu={false}
+                        />
                         <GridActionsCellItem
-                            icon={<DeleteIcon />}
+                            icon={
+                                <Box component="span" title="Delete" sx={{ p: 0, m: 0, minWidth: 0 }}>
+                                    <DeleteIcon fontSize="small" />
+                                </Box>
+                            }
                             label="Delete"
-                            onClick={handleSingleDelete(id)}
+                            onClick={handleSingleDelete(params.id)}
                             color="inherit"
-                        />,
-                    ];
-                },
+                            showInMenu={false}
+                        />
+                    </Box>
+                ),
             },
         ],
         [rows, handleSingleDelete]
@@ -287,7 +348,7 @@ const Products = () => {
                 <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateProductModal}>
                     Add Product
                 </Button>
-                
+
                 <GridSeparatorIcon sx={{ mx: 1 }} />
 
                 <GridToolbarExport
@@ -301,16 +362,20 @@ const Products = () => {
     }
 
     if (error) {
-        return <Typography color="error">Error: {error.message}</Typography>;
+        return (
+            <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
+                <PageHeader title="Products" subtitle="Error loading products" divider={false} />
+                <Typography variant="body1">Failed to load products: {error.message}</Typography>
+            </Box>
+        );
     }
 
     return (
         <Box sx={{ width: '100%', minHeight: 400 }}>
-            <Toolbar sx={{ justifyContent: 'space-between', mb: 2 }}>
-                <Typography variant="h6" component="div">
-                    Products
-                </Typography>
-            </Toolbar>
+            <PageHeader
+                title="Products"
+                subtitle="View and manage your product inventory."
+            />
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -323,7 +388,6 @@ const Products = () => {
                 sortModel={sortModel}
                 onSortModelChange={setSortModel}
                 filterMode="server"
-                filterModel={filterModel}
                 onFilterModelChange={setFilterModel}
                 loading={loading}
                 slots={{ toolbar: CustomToolbar }}

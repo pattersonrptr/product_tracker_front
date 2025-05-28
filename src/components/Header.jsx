@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, Box } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box, useTheme } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo-product-tracker-1.png'
 
 const Header = ({ onLogout, isLoggedIn }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -23,15 +25,41 @@ const Header = ({ onLogout, isLoggedIn }) => {
 
     const handleSuaContaClick = () => {
         handleClose();
-        navigate('/');
+        navigate('/account');
     };
 
     return (
-        <AppBar position="static">
+        <AppBar
+            position="fixed"
+            sx={{
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                backgroundImage: 'linear-gradient(to right, #3f51b5, #3f51b5, #5c6bc0)',
+                boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+            }}
+        >
             <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Product Tracker
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mr: 3 }}>
+                    <img
+                        src={logo}
+                        alt="Product Tracker Logo"
+                        style={{ height: '60px', marginRight: '10px' }}
+                    />
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{
+                            fontWeight: 600,
+                            letterSpacing: '0.05em',
+                            color: '#ffffff',
+                            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
+                        }}
+                    >
+                        Product Tracker
+                    </Typography>
+                </Box>
+
+                <Box sx={{ flexGrow: 1 }} />
+
                 {isLoggedIn && (
                     <Box>
                         <IconButton
