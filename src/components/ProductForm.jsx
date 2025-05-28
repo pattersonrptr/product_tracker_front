@@ -62,7 +62,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
         const fetchSourceWebsites = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axiosInstance.get('http://127.0.0.1:8000/source_websites/?page_size=100', {
+                const response = await axiosInstance.get('/source_websites/?page_size=100', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setSourceWebsites(response.data.items);
@@ -87,7 +87,6 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
             is_available: isAvailable,
             image_urls: imageUrls || null,
             current_price: parseFloat(currentPrice) || null,
-            // created_at, updated_at, source_metadata, id are managed by the backend
         })
     }));
 

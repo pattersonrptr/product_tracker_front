@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box, useTheme } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo-product-tracker-1.png'
 
 const Header = ({ onLogout, isLoggedIn }) => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -37,20 +38,25 @@ const Header = ({ onLogout, isLoggedIn }) => {
             }}
         >
             <Toolbar>
-                <Typography
-                    variant="h5"
-                    component="div"
-                    sx={{
-                        flexGrow: 0,
-                        mr: 3,
-                        fontWeight: 600,
-                        letterSpacing: '0.05em',
-                        color: '#ffffff',
-                        textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
-                    }}
-                >
-                    Product Tracker
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', mr: 3 }}>
+                    <img
+                        src={logo}
+                        alt="Product Tracker Logo"
+                        style={{ height: '60px', marginRight: '10px' }}
+                    />
+                    <Typography
+                        variant="h5"
+                        component="div"
+                        sx={{
+                            fontWeight: 600,
+                            letterSpacing: '0.05em',
+                            color: '#ffffff',
+                            textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
+                        }}
+                    >
+                        Product Tracker
+                    </Typography>
+                </Box>
 
                 <Box sx={{ flexGrow: 1 }} />
 
