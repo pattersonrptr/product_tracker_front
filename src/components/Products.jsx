@@ -20,7 +20,6 @@ import GenericFormModal from './GenericFormModal';
 import ProductForm from './ProductForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
-
 import PageHeader from './PageHeader';
 
 const Products = () => {

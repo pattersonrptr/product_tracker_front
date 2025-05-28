@@ -18,7 +18,6 @@ import GenericFormModal from './GenericFormModal';
 import SearchConfigForm from './SearchConfigForm';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSnackbar } from 'notistack';
-
 import PageHeader from './PageHeader';
 
 const SearchConfigs = () => {

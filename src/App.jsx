@@ -58,7 +58,7 @@ function AppContent() {
                         >
                             <Main>
                                 <Routes>
-                                    <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                                    <Route path="/account" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                                     <Route path="/source-websites" element={<ProtectedRoute><SourceWebsites /></ProtectedRoute>} />
                                     <Route path="/search-configs" element={<ProtectedRoute><SearchConfigs /></ProtectedRoute>} />
                                     <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />

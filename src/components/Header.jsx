@@ -25,7 +25,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
 
     const handleSuaContaClick = () => {
         handleClose();
-        navigate('/');
+        navigate('/account');
     };
 
     return (

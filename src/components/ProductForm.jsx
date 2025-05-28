@@ -25,7 +25,6 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
     const [isAvailable, setIsAvailable] = useState(true);
     const [imageUrls, setImageUrls] = useState('');
     const [currentPrice, setCurrentPrice] = useState('');
-
     const [sourceWebsites, setSourceWebsites] = useState([]);
 
     useEffect(() => {
