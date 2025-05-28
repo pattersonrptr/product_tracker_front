@@ -1,9 +1,10 @@
 import React from 'react';
+import { Box } from '@mui/material';
 
 const Main = ({ children }) => (
-  <main style={{ flex: 1, padding: '20px' }}>
+  <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
     {children}
-  </main>
+  </Box>
 );
 
 export default Main;

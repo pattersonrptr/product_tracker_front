@@ -12,7 +12,8 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import { Button, Toolbar, Typography, Box } from '@mui/material';
+import { Button, Toolbar, Typography, Box, Link as MuiLink } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
 import GenericFormModal from './GenericFormModal';
 import ProductForm from './ProductForm';
@@ -219,8 +220,46 @@ const Products = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 70 },
-            { field: 'title', headerName: 'Title', flex: 1.5 },
+            { 
+                field: 'id', 
+                headerName: 'ID', 
+                width: 70,
+                renderCell: (params) => `#${params.value}`,
+            },
+            {
+                field: 'title',
+                headerName: 'Title',
+                flex: 1.5,
+                renderCell: (params) => (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        {params.row.image_urls && (
+                            <Box
+                                component="img"
+                                src={params.row.image_urls}
+                                alt="Product"
+                                sx={{
+                                    width: 32,
+                                    height: 32,
+                                    objectFit: 'cover',
+                                    borderRadius: 1,
+                                    border: '1px solid #eee',
+                                    background: '#fafafa',
+                                    mr: 1.2,
+                                }}
+                            />
+                        )}
+                        <MuiLink
+                            component={RouterLink}
+                            to={`/products/${params.row.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ textDecoration: 'none', color: 'inherit', '&:hover': { textDecoration: 'underline' } }}
+                        >
+                            {params.value}
+                        </MuiLink>
+                    </Box>
+                ),
+            },
             { field: 'url', headerName: 'URL', flex: 2 },
             { field: 'source_website_id', headerName: 'Source Website ID', width: 150 },
             { field: 'current_price', headerName: 'Price', width: 100, type: 'number',
@@ -232,9 +271,7 @@ const Products = () => {
             { field: 'condition', headerName: 'Condition', width: 120 },
             { field: 'seller_name', headerName: 'Seller', width: 150 },
             { field: 'source_product_code', headerName: 'Source Code', width: 150 },
-            // description and image_urls can be too long to display directly in the table, TODO: Review this later.
-            // { field: 'description', headerName: 'Description', flex: 2, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
-            // { field: 'image_urls', headerName: 'Image URLs', flex: 1, renderCell: (params) => <div style={{ whiteSpace: 'normal', lineHeight: 'normal' }}>{params.value}</div> },
+
             {
                 field: 'actions',
                 type: 'actions',

@@ -44,7 +44,6 @@ const Sidebar = ({ onWidthChange }) => {
           left: 0,
           top: 85, // AppBar height
           height: 'calc(100vh - 85px)',
-          // abaixo do AppBar (zIndex padrão do Drawer é 1200, AppBar é 1100)
           zIndex: 1200, // under AppBar (zIndex of Drawer is 1200, AppBar is 1100)
         }
       }}
@@ -56,19 +55,19 @@ const Sidebar = ({ onWidthChange }) => {
       </div>
       <Divider />
       <List>
-        <ListItem button component={Link} to="/products">
+        <ListItem component={Link} to="/products">
           <ListItemIcon>
             <InventoryIcon />
           </ListItemIcon>
           {open && <ListItemText primary="Products" />}
         </ListItem>
-        <ListItem button component={Link} to="/search-configs">
+        <ListItem component={Link} to="/search-configs">
           <ListItemIcon>
             <SearchIcon />
           </ListItemIcon>
           {open && <ListItemText primary="Search Configs" />}
         </ListItem>
-        <ListItem button component={Link} to="/source-websites">
+        <ListItem component={Link} to="/source-websites">
           <ListItemIcon>
             <LanguageIcon />
           </ListItemIcon>

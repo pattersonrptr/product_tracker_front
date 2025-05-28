@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import SourceWebsites from './components/SourceWebsites';
 import SearchConfigs from './components/SearchConfigs';
 import Products from './components/Products';
+import ProductDetail from './components/ProductDetail';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -61,7 +62,8 @@ function AppContent() {
                                     <Route path="/source-websites" element={<ProtectedRoute><SourceWebsites /></ProtectedRoute>} />
                                     <Route path="/search-configs" element={<ProtectedRoute><SearchConfigs /></ProtectedRoute>} />
                                     <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-                                    <Route path="*" element={<Navigate to="/" replace />} />
+                                    <Route path="/products/:productId" element={<ProductDetail />} />
+                                    <Route path="*" element={<Navigate to="/products" replace />} />
                                 </Routes>
                             </Main>
                         </div>

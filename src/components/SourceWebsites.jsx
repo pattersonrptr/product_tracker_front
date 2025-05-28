@@ -208,7 +208,12 @@ const SourceWebsites = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 90 },
+            { 
+                field: 'id', 
+                headerName: 'ID', 
+                width: 70,
+                renderCell: (params) => `#${params.value}`,
+            },
             { field: 'name', headerName: 'Name', flex: 1 },
             { field: 'base_url', headerName: 'Base URL', flex: 2 },
             { field: 'is_active', headerName: 'Active', width: 100, type: 'boolean' },
