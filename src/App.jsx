@@ -12,14 +12,15 @@ import Products from './components/Products';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import Register from './components/Register';
 import ProtectedRoute from './components/ProtectedRoute';
-import { setSessionExpiredCallback } from './api/axiosConfig';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { setSessionExpiredCallback } from './api/axiosConfig';
 import './App.css';
 import { SnackbarProvider } from 'notistack';
 
 function AppContent() {
     const { token, logout, handleSessionExpired } = useAuth();
     const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+    const [sidebarWidth, setSidebarWidth] = React.useState(200); // default expanded
 
     useEffect(() => {
         setSessionExpiredCallback(handleSessionExpired);
@@ -39,21 +40,31 @@ function AppContent() {
     };
 
     return (
-        <div className="App" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <div className="App">
             {token ? (
                 <>
                     <Header onLogout={handleLogoutConfirmation} isLoggedIn={!!token} />
-                    <div style={{ display: 'flex', flex: 1 }}>
-                        <Sidebar />
-                        <Main>
-                            <Routes>
-                                <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-                                <Route path="/source-websites" element={<ProtectedRoute><SourceWebsites /></ProtectedRoute>} />
-                                <Route path="/search-configs" element={<ProtectedRoute><SearchConfigs /></ProtectedRoute>} />
-                                <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
-                                <Route path="*" element={<Navigate to="/" />} />
-                            </Routes>
-                        </Main>
+                    <div style={{ display: 'flex' }}>
+                        <Sidebar onWidthChange={setSidebarWidth} />
+                        <div
+                            style={{
+                                flex: 1,
+                                marginTop: 64, // appBar height MUI pattern
+                                marginLeft: sidebarWidth, // sidebar extended width
+                                transition: 'margin-left 0.2s',
+                            }}
+                            id="main-content"
+                        >
+                            <Main>
+                                <Routes>
+                                    <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                                    <Route path="/source-websites" element={<ProtectedRoute><SourceWebsites /></ProtectedRoute>} />
+                                    <Route path="/search-configs" element={<ProtectedRoute><SearchConfigs /></ProtectedRoute>} />
+                                    <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
+                                    <Route path="*" element={<Navigate to="/" replace />} />
+                                </Routes>
+                            </Main>
+                        </div>
                     </div>
                     <Footer />
                     <ConfirmationDialog
@@ -68,7 +79,7 @@ function AppContent() {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="*" element={<Navigate to="/login" />} />
+                    <Route path="*" element={<Navigate to="/login" replace />} />
                 </Routes>
             )}
         </div>
