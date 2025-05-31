@@ -164,4 +164,23 @@ axiosInstance.interceptors.response.use(
     }
 );
 
+export async function login(username, password) {
+    const tokenResp = await axios.post(`${baseURL}/auth/login`, 
+        new URLSearchParams({
+            username,
+            password
+        }), 
+        {
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }
+    );
+    const accessToken = tokenResp.data.access_token;
+    localStorage.setItem('token', accessToken);
+
+    const userResp = await axiosInstance.get(`/users/username/${username}`, {
+        headers: { 'Authorization': `Bearer ${accessToken}` }
+    });
+    localStorage.setItem('user', JSON.stringify(userResp.data));
+}
+
 export default axiosInstance;

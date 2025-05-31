@@ -23,7 +23,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
         onLogout();
     };
 
-    const handleSuaContaClick = () => {
+    const handleAccountClick = () => {
         handleClose();
         navigate('/account');
     };
@@ -87,7 +87,7 @@ const Header = ({ onLogout, isLoggedIn }) => {
                             open={open}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleSuaContaClick}>Your Account</MenuItem>
+                            <MenuItem onClick={handleAccountClick}>Your Account</MenuItem>
                             <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
                         </Menu>
                     </Box>
