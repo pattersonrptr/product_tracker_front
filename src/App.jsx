@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Login from './components/Login';
-import Home from './components/Home';
+import UserAccount from './components/UserAccount';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Main from './components/Main';
@@ -58,7 +58,7 @@ function AppContent() {
                         >
                             <Main>
                                 <Routes>
-                                    <Route path="/account" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                                    <Route path="/account" element={<ProtectedRoute><UserAccount /></ProtectedRoute>} />
                                     <Route path="/source-websites" element={<ProtectedRoute><SourceWebsites /></ProtectedRoute>} />
                                     <Route path="/search-configs" element={<ProtectedRoute><SearchConfigs /></ProtectedRoute>} />
                                     <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />

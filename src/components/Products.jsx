@@ -103,6 +103,10 @@ const Products = () => {
         if (!productFormRef.current) return;
 
         const productData = productFormRef.current.getFormData();
+        if (!productData) {
+            enqueueSnackbar('Please fill all required fields correctly.', { variant: 'error' });
+            return;
+        }
 
         if (!productData.title || productData.title.trim() === '') {
             enqueueSnackbar('Product Title is required.', { variant: 'error' });
@@ -139,7 +143,15 @@ const Products = () => {
             handleCloseModal();
         } catch (err) {
             console.error('Error saving product:', err);
-            const errorMessage = err.response?.data?.detail || 'Error saving product. Please check the data.';
+            // Tenta extrair mensagem detalhada do backend
+            let errorMessage = 'Error saving product. Please check the data.';
+            if (err.response?.data?.detail) {
+                if (Array.isArray(err.response.data.detail)) {
+                    errorMessage = err.response.data.detail.map(d => d.msg).join(' | ');
+                } else {
+                    errorMessage = err.response.data.detail;
+                }
+            }
             enqueueSnackbar(errorMessage, { variant: 'error' });
         } finally {
             setIsSavingProduct(false);
@@ -220,6 +232,15 @@ const Products = () => {
         return '';
     }, [confirmAction, rowSelection.length]);
 
+    const extractDomain = (url) => {
+        try {
+            const { hostname } = new URL(url);
+            return hostname.replace(/^www\./, '').replace(/\.com.*/, '');
+        } catch {
+            return '';
+        }
+    };
+
     const columns = useMemo(
         () => [
             {
@@ -265,7 +286,12 @@ const Products = () => {
                     </MuiLink>
                 ),
             },
-            { field: 'source_website_id', headerName: 'Source Website ID', width: 150 },
+            {
+                field: 'source_website_id',
+                headerName: 'Source Website',
+                width: 180,
+                renderCell: (params) => extractDomain(params.row.url),
+            },
             { field: 'current_price', headerName: 'Price', width: 100, type: 'number',
               valueFormatter: (value) => value !== null ? `R$ ${value.toFixed(2)}` : ''
             },

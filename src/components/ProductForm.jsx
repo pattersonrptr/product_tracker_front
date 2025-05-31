@@ -26,6 +26,7 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
     const [imageUrls, setImageUrls] = useState('');
     const [currentPrice, setCurrentPrice] = useState('');
     const [sourceWebsites, setSourceWebsites] = useState([]);
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (initialData) {
@@ -72,21 +73,37 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
         fetchSourceWebsites();
     }, []);
 
+    const validate = () => {
+        const newErrors = {};
+        if (!title || title.trim() === '') newErrors.title = 'Product Title is required';
+        if (!url || url.trim() === '') newErrors.url = 'Product URL is required';
+        if (!sourceWebsiteId) newErrors.sourceWebsiteId = 'Source Website is required';
+        if (!city || city.trim() === '') newErrors.city = 'City is required';
+        if (!state || state.trim() === '') newErrors.state = 'State is required';
+        if (!condition || condition.trim() === '') newErrors.condition = 'Condition is required';
+        if (!sellerName || sellerName.trim() === '') newErrors.sellerName = 'Seller Name is required';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     useImperativeHandle(ref, () => ({
-        getFormData: () => ({
-            url: url,
-            title: title,
-            source_website_id: parseInt(sourceWebsiteId),
-            description: description || null,
-            source_product_code: sourceProductCode || null,
-            city: city || null,
-            state: state || null,
-            condition: condition || null,
-            seller_name: sellerName || null,
-            is_available: isAvailable,
-            image_urls: imageUrls || null,
-            current_price: parseFloat(currentPrice) || null,
-        })
+        getFormData: () => {
+            if (!validate()) return null;
+            return {
+                url: url,
+                title: title,
+                source_website_id: parseInt(sourceWebsiteId),
+                description: description || null,
+                source_product_code: sourceProductCode || null,
+                city: city,
+                state: state,
+                condition: condition,
+                seller_name: sellerName,
+                is_available: isAvailable,
+                image_urls: imageUrls || null,
+                current_price: currentPrice !== '' ? parseFloat(currentPrice) : null,
+            };
+        }
     }));
 
     return (
@@ -102,6 +119,8 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
+                error={!!errors.title}
+                helperText={errors.title}
             />
             <TextField
                 margin="dense"
@@ -113,8 +132,10 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
+                error={!!errors.url}
+                helperText={errors.url}
             />
-            <FormControl fullWidth margin="dense" variant="outlined" required>
+            <FormControl fullWidth margin="dense" variant="outlined" required error={!!errors.sourceWebsiteId}>
                 <InputLabel id="source-website-label">Source Website</InputLabel>
                 <Select
                     labelId="source-website-label"
@@ -132,6 +153,9 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                         </MenuItem>
                     ))}
                 </Select>
+                {errors.sourceWebsiteId && (
+                    <Box sx={{ color: 'error.main', fontSize: 12, mt: 0.5 }}>{errors.sourceWebsiteId}</Box>
+                )}
             </FormControl>
             <TextField
                 margin="dense"
@@ -164,6 +188,9 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
+                required
+                error={!!errors.city}
+                helperText={errors.city}
             />
             <TextField
                 margin="dense"
@@ -174,6 +201,9 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
+                required
+                error={!!errors.state}
+                helperText={errors.state}
             />
             <TextField
                 margin="dense"
@@ -184,6 +214,9 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
+                required
+                error={!!errors.condition}
+                helperText={errors.condition}
             />
             <TextField
                 margin="dense"
@@ -194,6 +227,9 @@ const ProductForm = forwardRef(({ initialData }, ref) => {
                 variant="outlined"
                 value={sellerName}
                 onChange={(e) => setSellerName(e.target.value)}
+                required
+                error={!!errors.sellerName}
+                helperText={errors.sellerName}
             />
             <TextField
                 margin="dense"

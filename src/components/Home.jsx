@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-const Home = () => {
+const UserAccount = () => {
     return (
         <Box
             display="flex"
@@ -17,4 +17,4 @@ const Home = () => {
     );
 };
 
-export default Home;
+export default UserAccount;
