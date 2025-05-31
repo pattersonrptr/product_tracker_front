@@ -98,6 +98,21 @@ const SearchConfigs = () => {
         if (!searchConfigFormRef.current) return;
 
         const configData = searchConfigFormRef.current.getFormData();
+        if (!configData) {
+            return;
+        }
+
+        if (!configData.user_id) {
+            const user = localStorage.getItem('user');
+            if (user) {
+                try {
+                    const parsed = JSON.parse(user);
+                    configData.user_id = parsed.id;
+                } catch {
+                    // fallback: do nothing
+                }
+            }
+        }
 
         if (!configData.search_term || configData.search_term.trim() === '') {
             enqueueSnackbar('Search Term is required.', { variant: 'error' });
@@ -105,6 +120,10 @@ const SearchConfigs = () => {
         }
         if (isNaN(configData.frequency_days) || configData.frequency_days <= 0) {
             enqueueSnackbar('Frequency must be a positive number.', { variant: 'error' });
+            return;
+        }
+        if (!configData.source_websites || configData.source_websites.length === 0) {
+            enqueueSnackbar('At least one source website must be selected.', { variant: 'error' });
             return;
         }
 
@@ -214,6 +233,46 @@ const SearchConfigs = () => {
             { field: 'frequency_days', headerName: 'Frequency (Days)', width: 150, type: 'number' },
             { field: 'preferred_time', headerName: 'Preferred Time', width: 150, type: 'string' },
             { field: 'is_active', headerName: 'Active', width: 100, type: 'boolean' },
+            {
+                field: 'source_websites',
+                headerName: 'Source Websites',
+                flex: 1,
+                minWidth: 180,
+                sortable: false,
+                filterable: false,
+                renderCell: (params) => {
+                    const sw = params.row.source_websites || [];
+                    if (!Array.isArray(sw) || sw.length === 0) return '';
+                    return (
+                        <Box sx={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            alignItems: 'center',
+                            gap: '4px',
+                            minHeight: '32px'
+                        }}>
+                            {sw.map(site =>
+                                <span
+                                    key={site.id}
+                                    style={{
+                                        background: '#e0e0e0',
+                                        borderRadius: 8,
+                                        padding: '2px 8px',
+                                        fontSize: 12,
+                                        marginRight: 4,
+                                        display: 'inline-block',
+                                        whiteSpace: 'nowrap',
+                                        lineHeight: '24px',
+                                        height: '24px',
+                                    }}
+                                >
+                                    {site.name}
+                                </span>
+                            )}
+                        </Box>
+                    );
+                }
+            },
             {
                 field: 'created_at',
                 headerName: 'Created At',
