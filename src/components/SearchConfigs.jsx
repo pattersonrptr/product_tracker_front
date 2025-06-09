@@ -273,16 +273,16 @@ const SearchConfigs = () => {
                     );
                 }
             },
-            {
-                field: 'created_at',
-                headerName: 'Created At',
-                width: 180,
-                type: 'dateTime',
-                valueFormatter: (params) => {
-                    if (!params || params.value === null || params.value === undefined) return '';
-                    return new Date(params.value).toLocaleString();
-                },
-            },
+            // {
+            //     field: 'created_at',
+            //     headerName: 'Created At',
+            //     width: 180,
+            //     type: 'dateTime',
+            //     valueFormatter: (params) => {
+            //         if (!params || params.value === null || params.value === undefined) return '';
+            //         return new Date(params.value).toLocaleString();
+            //     },
+            // },
             {
                 field: 'actions',
                 type: 'actions',
