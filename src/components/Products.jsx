@@ -235,7 +235,7 @@ const Products = () => {
     const extractDomain = (url) => {
         try {
             const { hostname } = new URL(url);
-            return hostname.replace(/^www\./, '').replace(/\.com.*/, '');
+            return hostname.replace(/^www\./, '').replace(/\.com.*/, '').replace(/.*?\./, '');
         } catch {
             return '';
         }
@@ -243,15 +243,15 @@ const Products = () => {
 
     const columns = useMemo(
         () => [
-            {
-                field: 'id',
-                headerName: 'ID',
-                width: 70,
-                renderCell: (params) => `#${params.value}`,
-            },
+            // {
+            //     field: 'id',
+            //     headerName: 'ID',
+            //     width: 70,
+            //     renderCell: (params) => `#${params.value}`,
+            // },
             {
                 field: 'title',
-                headerName: 'Title',
+                headerName: 'Product',
                 flex: 1.5,
                 renderCell: (params) => (
                     <MuiLink
@@ -296,10 +296,7 @@ const Products = () => {
               valueFormatter: (value) => value !== null ? `R$ ${value.toFixed(2)}` : ''
             },
             { field: 'is_available', headerName: 'Available', width: 100, type: 'boolean' },
-            { field: 'city', headerName: 'City', width: 100 },
-            { field: 'state', headerName: 'State', width: 80 },
             { field: 'condition', headerName: 'Condition', width: 120 },
-            { field: 'seller_name', headerName: 'Seller', width: 150 },
             { field: 'source_product_code', headerName: 'Source Code', width: 150 },
             {
                 field: 'actions',
