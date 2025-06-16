@@ -15,84 +15,36 @@ import AddIcon from '@mui/icons-material/Add';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Button, Toolbar, Typography, Box, Link as MuiLink } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-import axiosInstance from '../api/axiosConfig';
+import { useSnackbar } from 'notistack';
 import GenericFormModal from './GenericFormModal';
 import ProductForm from './ProductForm';
 import ConfirmationDialog from './ConfirmationDialog';
-import { useSnackbar } from 'notistack';
 import PageHeader from './PageHeader';
+import useProducts from '../hooks/useProducts';
+import apiService from '../api/apiService';
 
 const Products = () => {
-    const [rows, setRows] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [rowSelection, setRowSelection] = useState([]);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState(null);
-
     const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
     const [confirmAction, setConfirmAction] = useState(null);
     const [itemToDeleteId, setItemToDeleteId] = useState(null);
-
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-    const [rowCount, setRowCount] = useState(0);
-    const [filterModel, setFilterModel] = useState({ items: [] });
     const [sortModel, setSortModel] = useState([]);
+    const [filterModel, setFilterModel] = useState({ items: [] });
     const [isSavingProduct, setIsSavingProduct] = useState(false);
 
     const { enqueueSnackbar } = useSnackbar();
-
     const productFormRef = useRef(null);
 
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const token = localStorage.getItem('token');
-            const params = {};
-
-            const offset = paginationModel.page * paginationModel.pageSize;
-            const limit = paginationModel.pageSize;
-            const queryParams = new URLSearchParams();
-            queryParams.append('limit', limit);
-            queryParams.append('offset', offset);
-
-            if (sortModel.length > 0) {
-                const sortItem = sortModel[0];
-                queryParams.append('sort_by', sortItem.field);
-                queryParams.append('sort_order', sortItem.sort);
-            }
-
-            filterModel.items.forEach(item => {
-                if (item.value) {
-                    params[`filter_${item.field}_value`] = item.value;
-                    params[`filter_${item.field}_operator`] = item.operator;
-                }
-            });
-
-            const response = await axiosInstance.get(`/products/?${queryParams.toString()}`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-                params: params,
-            });
-
-            console.log('API Response for Products:', response.data);
-
-            setRows(response.data.items);
-            setRowCount(response.data.total_count !== undefined && response.data.total_count !== null ? response.data.total_count : 0);
-
-        } catch (err) {
-            console.error('Error fetching products:', err);
-            setError(err);
-            enqueueSnackbar('Failed to fetch products.', { variant: 'error' });
-        } finally {
-            setLoading(false);
-        }
-    }, [paginationModel, sortModel, filterModel, enqueueSnackbar]);
-
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+    const {
+        products: rows,
+        loading,
+        error,
+        rowCount,
+        fetchProducts
+    } = useProducts(paginationModel, sortModel, filterModel);
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
@@ -127,23 +79,17 @@ const Products = () => {
 
         setIsSavingProduct(true);
         try {
-            const token = localStorage.getItem('token');
             if (currentProduct) {
-                await axiosInstance.put(`/products/${currentProduct.id}`, productData, {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
+                await apiService.put(`/products/${currentProduct.id}`, productData);
                 enqueueSnackbar('Product updated successfully!', { variant: 'success' });
             } else {
-                await axiosInstance.post('/products/', productData, {
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
+                await apiService.post('/products/', productData);
                 enqueueSnackbar('New Product created successfully!', { variant: 'success' });
             }
             fetchProducts();
             handleCloseModal();
         } catch (err) {
             console.error('Error saving product:', err);
-            // Tenta extrair mensagem detalhada do backend
             let errorMessage = 'Error saving product. Please check the data.';
             if (err.response?.data?.detail) {
                 if (Array.isArray(err.response.data.detail)) {
@@ -167,10 +113,7 @@ const Products = () => {
         setIsConfirmDialogOpen(false);
         if (itemToDeleteId) {
             try {
-                const token = localStorage.getItem('token');
-                await axiosInstance.delete(`/products/delete/${itemToDeleteId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                await apiService.delete(`/products/delete/${itemToDeleteId}`);
                 enqueueSnackbar('Product deleted successfully!', { variant: 'success' });
                 fetchProducts();
             } catch (err) {
@@ -185,11 +128,7 @@ const Products = () => {
     const handleConfirmBulkDelete = useCallback(async () => {
         setIsConfirmDialogOpen(false);
         try {
-            const token = localStorage.getItem('token');
-            await axiosInstance.delete('/products/bulk/delete', {
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                data: { ids: rowSelection }
-            });
+            await apiService.delete('/products/bulk/delete', { ids: rowSelection });
             enqueueSnackbar('Selected Products deleted successfully!', { variant: 'success' });
             setRowSelection([]);
             fetchProducts();
