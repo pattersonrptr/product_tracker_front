@@ -228,7 +228,6 @@ const SearchConfigs = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 70, renderCell: (params) => `#${params.value}` },
             { field: 'search_term', headerName: 'Search Term', flex: 1 },
             { field: 'frequency_days', headerName: 'Frequency (Days)', width: 150, type: 'number' },
             { field: 'preferred_time', headerName: 'Preferred Time', width: 150, type: 'string' },
@@ -273,16 +272,6 @@ const SearchConfigs = () => {
                     );
                 }
             },
-            // {
-            //     field: 'created_at',
-            //     headerName: 'Created At',
-            //     width: 180,
-            //     type: 'dateTime',
-            //     valueFormatter: (params) => {
-            //         if (!params || params.value === null || params.value === undefined) return '';
-            //         return new Date(params.value).toLocaleString();
-            //     },
-            // },
             {
                 field: 'actions',
                 type: 'actions',

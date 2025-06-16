@@ -243,12 +243,6 @@ const Products = () => {
 
     const columns = useMemo(
         () => [
-            // {
-            //     field: 'id',
-            //     headerName: 'ID',
-            //     width: 70,
-            //     renderCell: (params) => `#${params.value}`,
-            // },
             {
                 field: 'title',
                 headerName: 'Product',

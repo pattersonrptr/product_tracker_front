@@ -103,28 +103,44 @@ const ProductDetail = () => {
                 <Typography variant="h5" component="h2" gutterBottom>
                     {product.title}
                 </Typography>
+                
+                <Box mb={2} />
+
                 <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">ID:</Typography> {product.id}
+                    <Typography component="span" fontWeight="bold">Description:<br /></Typography>
+                    <Typography component="span" color="text.secondary">{product.description || 'N/A'}</Typography>
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">Description:</Typography> {product.description || 'N/A'}
+                    <Typography component="span" fontWeight="bold">Current Price:</Typography>{' '}
+                    <Typography component="span" color="text.secondary">
+                        R$ {product.current_price ? parseFloat(product.current_price).toFixed(2) : 'N/A'}
+                    </Typography>
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">Current Price:</Typography> R$ {product.current_price ? parseFloat(product.current_price).toFixed(2) : 'N/A'}
+                    <Typography component="span" fontWeight="bold">Condition:</Typography>{' '}
+                    <Typography component="span" color="text.secondary">{product.condition}</Typography>
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">Location:</Typography> {product.city}, {product.state}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">Condition:</Typography> {product.condition}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    <Typography component="span" fontWeight="bold">Available:</Typography> {product.is_available ? 'Yes' : 'No'}
+                    <Typography component="span" fontWeight="bold">Available:</Typography>{' '}
+                    <Typography component="span" color="text.secondary">{product.is_available ? 'Yes' : 'No'}</Typography>
                 </Typography>
                 {product.url && (
                     <Typography variant="body1" gutterBottom>
                         <Typography component="span" fontWeight="bold">Source URL:</Typography>{' '}
-                        <MuiLink href={product.url} target="_blank" rel="noopener">
+                        <MuiLink
+                            href={product.url}
+                            target="_blank"
+                            rel="noopener"
+                            sx={{
+                                display: 'inline-block',
+                                maxWidth: 250,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                verticalAlign: 'bottom'
+                            }}
+                            title={product.url}
+                        >
                             {product.url}
                         </MuiLink>
                     </Typography>
@@ -166,14 +182,6 @@ const ProductDetail = () => {
                                 <Line type="monotone" dataKey="price" stroke="#8884d8" activeDot={{ r: 8 }} />
                             </LineChart>
                         </ResponsiveContainer>
-                        <Typography variant="h6" mt={3} mb={1}>Raw Price Data:</Typography>
-                        <ul>
-                            {priceHistory.map((historyItem, index) => (
-                                <li key={index}>
-                                    R$ {historyItem.price.toFixed(2)} on {new Date(historyItem.created_at).toLocaleString('pt-BR')}
-                                </li>
-                            ))}
-                        </ul>
                     </Box>
                 ) : (
                     <Typography variant="body2" color="text.secondary">

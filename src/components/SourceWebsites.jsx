@@ -209,20 +209,9 @@ const SourceWebsites = () => {
 
     const columns = useMemo(
         () => [
-            { field: 'id', headerName: 'ID', width: 70, renderCell: (params) => `#${params.value}` },
             { field: 'name', headerName: 'Name', flex: 1 },
             { field: 'base_url', headerName: 'Base URL', flex: 2 },
             { field: 'is_active', headerName: 'Active', width: 100, type: 'boolean' },
-            // {
-            //     field: 'created_at',
-            //     headerName: 'Created At',
-            //     width: 180,
-            //     type: 'dateTime',
-            //     valueFormatter: (params) => {
-            //         if (!params || params.value === null || params.value === undefined) return '';
-            //         return new Date(params.value).toLocaleString();
-            //     },
-            // },
             {
                 field: 'actions',
                 type: 'actions',
