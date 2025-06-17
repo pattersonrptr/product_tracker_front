@@ -7,6 +7,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import logo from '../assets/logo-product-tracker-1.png'
 
 const Header = ({ onLogout, isLoggedIn }) => {
