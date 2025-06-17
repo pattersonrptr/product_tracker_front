@@ -1,5 +1,5 @@
-import apiService from './apiService';
-import axiosInstance from './axiosConfig';
+import apiService from '../../api/apiService';
+import axiosInstance from '../../api/axiosConfig';
 import MockAdapter from 'axios-mock-adapter';
 import { jwtDecode } from 'jwt-decode';
 

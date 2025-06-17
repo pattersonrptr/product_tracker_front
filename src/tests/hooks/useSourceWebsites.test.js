@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import useSourceWebsites from './useSourceWebsites';
+import useSourceWebsites from '../../hooks/useSourceWebsites';
 
 jest.mock('notistack', () => ({
     useSnackbar: () => ({

@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react-hooks';
-import useProducts from './useProducts';
+import useProducts from '../../hooks/useProducts';
 import { SnackbarProvider } from 'notistack';
 
 jest.mock('notistack', () => ({

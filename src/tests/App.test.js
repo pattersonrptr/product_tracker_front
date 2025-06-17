@@ -1,8 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import { AuthProvider } from './context/AuthContext';
+import App from '../App';
+import { AuthProvider } from '../context/AuthContext';
 import { SnackbarProvider } from 'notistack';
 
 const AllTheProviders = ({ children }) => {

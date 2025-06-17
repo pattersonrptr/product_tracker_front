@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react-hooks';
-import useSearchConfigs from './useSearchConfigs';
+import useSearchConfigs from '../../hooks/useSearchConfigs';
 
 jest.mock('notistack', () => ({
     useSnackbar: () => ({
