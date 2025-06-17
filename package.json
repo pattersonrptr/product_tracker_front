@@ -51,8 +51,10 @@
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
+    "@testing-library/react-hooks": "^8.0.1",
     "axios-mock-adapter": "^1.22.0",
     "jest": "^27.0.0",
-    "jest-mock": "^29.0.0"
+    "jest-mock": "^29.0.0",
+    "jest-transform-stub": "^2.0.0"
   }
 }

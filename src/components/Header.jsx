@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Menu, MenuItem, Box, useTheme } from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo-product-tracker-1.png'
 
 const Header = ({ onLogout, isLoggedIn }) => {
     const [anchorEl, setAnchorEl] = useState(null);
-    const open = Boolean(anchorEl);
     const navigate = useNavigate();
-    const theme = useTheme();
 
     const handleMenu = (event) => {
         setAnchorEl(event.currentTarget);
@@ -18,14 +21,9 @@ const Header = ({ onLogout, isLoggedIn }) => {
         setAnchorEl(null);
     };
 
-    const handleLogoutClick = () => {
-        handleClose();
-        onLogout();
-    };
-
     const handleAccountClick = () => {
-        handleClose();
         navigate('/account');
+        handleClose();
     };
 
     return (
@@ -84,11 +82,11 @@ const Header = ({ onLogout, isLoggedIn }) => {
                                 vertical: 'top',
                                 horizontal: 'right',
                             }}
-                            open={open}
+                            open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleAccountClick}>Your Account</MenuItem>
-                            <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+                            <MenuItem onClick={handleAccountClick}>Account</MenuItem>
+                            <MenuItem onClick={onLogout}>Logout</MenuItem>
                         </Menu>
                     </Box>
                 )}
