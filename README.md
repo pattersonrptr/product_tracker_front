@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# Product Tracker Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the **frontend** for the Product Tracker system. It is a React application designed to consume a FastAPI backend that manages product data, user accounts, and price history, powered by web scrapers and a database.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- User authentication and registration
+- Product listing, creation, editing, and deletion
+- Product detail view with price history chart
+- Management of source websites and search configurations
+- Responsive UI built with Material-UI
+- Integration with a FastAPI backend
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- [Docker](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) installed on your machine
+- The backend FastAPI server running and accessible (see backend documentation for setup)
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Usage
 
-### `npm test`
+### 1. Clone the repository
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone git@github.com:pattersonrptr/product_tracker_front.git
+cd product_tracker_front
+```
 
-### `npm run build`
+### 2. Configure the Backend URL
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+By default, the frontend expects the backend to be available at `http://127.0.0.1:8000`.  
+If your backend runs elsewhere, update the `baseURL` in [`src/api/axiosConfig.js`](src/api/axiosConfig.js):
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+const baseURL = 'http://127.0.0.1:8000';
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 3. Build and Run with Docker
 
-### `npm run eject`
+You can build and run the frontend using Docker.  
+```bash
+docker compose up --build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- The frontend will be available at [http://localhost:3000](http://localhost:3000)
+- Make sure the backend FastAPI server is running and accessible from the container
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 4. Development (without Docker)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+If you prefer to run locally for development:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm install
+npm start
+```
 
-## Learn More
+The app will run on [http://localhost:3000](http://localhost:3000) by default.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Run tests
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+To run the frontend tests, use the following command:
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+npm test
+```
