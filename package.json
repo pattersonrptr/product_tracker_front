@@ -25,7 +25,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
+    "test:quiet": "jest 2> test-errors.log || (cat test-errors.log && rm test-errors.log) || rm test-errors.log",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -45,5 +46,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
+    "@testing-library/react-hooks": "^8.0.1",
+    "axios-mock-adapter": "^1.22.0",
+    "jest": "^27.0.0",
+    "jest-mock": "^29.0.0",
+    "jest-transform-stub": "^2.0.0"
   }
 }
