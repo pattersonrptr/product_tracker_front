@@ -55,7 +55,7 @@ npm start
 
 The app will run on [http://localhost:3000](http://localhost:3000) by default.
 
-## Run tests
+### 5. Run tests
 
 To run the frontend tests, use the following command:
 
