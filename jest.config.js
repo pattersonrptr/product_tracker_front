@@ -11,12 +11,12 @@ module.exports = {
   ],
   collectCoverage: true,
   collectCoverageFrom: [
-    'src/**/*.{js,jsx}',
-    '!src/**/*.test.{js,jsx}', // Exclui arquivos de teste
-    '!src/index.js', // Exclui o arquivo de entrada principal
-    '!src/reportWebVitals.js', // Exclui o arquivo reportWebVitals
-    '!src/fileTransformer.js',
-    '!src/setupTests.js'
+    'src/**/*.{js,jsx}',       // Include files ending with .js and .jsx
+    '!src/**/*.test.{js,jsx}', // Exclude test files
+    '!src/index.js',           // Exclude the entry file
+    '!src/reportWebVitals.js', // Exclude file reportWebVitals
+    '!src/fileTransformer.js', // Exclude file fileTransformer
+    '!src/setupTests.js'       // Exclude setupTests.js
   ],
   coverageReporters: ['text', 'lcov'], // Formatos de relatório
   globals: {

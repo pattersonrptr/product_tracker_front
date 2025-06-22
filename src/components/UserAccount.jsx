@@ -228,14 +228,6 @@ const UserAccount = () => {
                     <Typography variant="subtitle2">Status</Typography>
                     <Chip label={user.is_active ? 'Active' : 'Inactive'} color={user.is_active ? 'success' : 'default'} size="small" />
                 </Box>
-                {/* <Box>
-                    <Typography variant="subtitle2">Created At</Typography>
-                    <Typography>{user.created_at ? new Date(user.created_at).toLocaleString() : '-'}</Typography>
-                </Box> */}
-                {/* <Box>
-                    <Typography variant="subtitle2">Updated At</Typography>
-                    <Typography>{user.updated_at ? new Date(user.updated_at).toLocaleString() : '-'}</Typography>
-                </Box> */}
             </Stack>
 
             <GenericFormModal
