@@ -1,14 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import SearchIcon from '@mui/icons-material/Search';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -16,18 +13,12 @@ import LanguageIcon from '@mui/icons-material/Language';
 const drawerWidth = 220;
 const collapsedWidth = 56;
 
-const Sidebar = ({ onWidthChange }) => {
-  const [open, setOpen] = React.useState(false);
-
+const Sidebar = ({ open, onWidthChange }) => {
   React.useEffect(() => {
     if (onWidthChange) {
       onWidthChange(open ? drawerWidth : collapsedWidth);
     }
   }, [open, onWidthChange]);
-
-  const handleDrawerToggle = () => {
-    setOpen((prev) => !prev);
-  };
 
   return (
     <Drawer
@@ -48,11 +39,6 @@ const Sidebar = ({ onWidthChange }) => {
         }
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: open ? 'flex-end' : 'center', padding: 8 }}>
-        <IconButton onClick={handleDrawerToggle} size="small">
-          {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-        </IconButton>
-      </div>
       <Divider />
       <List>
         <ListItem component={Link} to="/products">

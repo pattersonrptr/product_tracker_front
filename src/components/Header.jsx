@@ -9,8 +9,9 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import logo from '../assets/logo-product-tracker-1.png'
+import MenuIcon from '@mui/icons-material/Menu';
 
-const Header = ({ onLogout, isLoggedIn }) => {
+const Header = ({ onLogout, isLoggedIn, sidebarOpen, onSidebarToggle }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const navigate = useNavigate();
 
@@ -37,6 +38,21 @@ const Header = ({ onLogout, isLoggedIn }) => {
             }}
         >
             <Toolbar>
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    aria-label="toggle sidebar"
+                    onClick={onSidebarToggle}
+                    sx={{
+                        ml: '-30px',
+                        mr: '20px',
+                        fontSize: 36,
+                        p: 1.2,
+                    }}
+                    size="large"
+                >
+                    <MenuIcon sx={{ fontSize: 36 }} />
+                </IconButton>
                 <Box sx={{ display: 'flex', alignItems: 'center', mr: 3 }}>
                     <img
                         src={logo}
