@@ -1,6 +1,7 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { TextField, Checkbox, FormControlLabel, Box, FormControl, InputLabel, Select, MenuItem, OutlinedInput, Chip } from '@mui/material';
 import axiosInstance from '../api/axiosConfig';
+import InputMask from 'react-input-mask';
 
 const SearchConfigForm = forwardRef(({ initialData }, ref) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -67,8 +68,11 @@ const SearchConfigForm = forwardRef(({ initialData }, ref) => {
             newErrors.frequencyDays = 'Enter a positive number';
         }
 
-        if (!preferredTime || !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(preferredTime)) {
-            newErrors.preferredTime = 'Enter a valid time (HH:MM)';
+        if (
+            !preferredTime ||
+            !/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(preferredTime)
+        ) {
+            newErrors.preferredTime = 'Enter a valid time (HH:MM:SS)';
         }
 
         setErrors(newErrors);
@@ -115,20 +119,27 @@ const SearchConfigForm = forwardRef(({ initialData }, ref) => {
                 helperText={errors.frequencyDays}
                 inputProps={{ min: 1 }}
             />
-            <TextField
-                margin="dense"
-                id="preferred-time"
-                label="Preferred Time (HH:MM)"
-                type="text"
-                fullWidth
-                variant="outlined"
+            <InputMask
+                mask="99:99:99"
                 value={preferredTime}
                 onChange={(e) => setPreferredTime(e.target.value)}
-                error={!!errors.preferredTime}
-                helperText={errors.preferredTime}
-                inputProps={{ pattern: "^([01]\\d|2[0-3]):[0-5]\\d$" }}
-                placeholder="Ex: 08:30"
-            />
+                maskChar="_"
+            >
+                {(inputProps) => (
+                    <TextField
+                        margin="dense"
+                        id="preferred-time"
+                        label="Preferred Time (HH:MM:SS)"
+                        type="text"
+                        fullWidth
+                        variant="outlined"
+                        error={!!errors.preferredTime}
+                        helperText={errors.preferredTime}
+                        placeholder="Ex: 08:30:00"
+                        {...inputProps}
+                    />
+                )}
+            </InputMask>
             <FormControlLabel
                 control={
                     <Checkbox
