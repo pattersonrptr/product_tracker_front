@@ -68,6 +68,7 @@ const SearchConfigForm = forwardRef(({ initialData }, ref) => {
             newErrors.frequencyDays = 'Enter a positive number';
         }
 
+        {/* Validate HH:MM:SS format */}
         if (
             !preferredTime ||
             !/^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/.test(preferredTime)
@@ -119,6 +120,7 @@ const SearchConfigForm = forwardRef(({ initialData }, ref) => {
                 helperText={errors.frequencyDays}
                 inputProps={{ min: 1 }}
             />
+            {/* Use InputMask for preferred time input */}
             <InputMask
                 mask="99:99:99"
                 value={preferredTime}

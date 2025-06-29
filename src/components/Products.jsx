@@ -232,6 +232,40 @@ const Products = () => {
             { field: 'condition', headerName: 'Condition', width: 120 },
             { field: 'source_product_code', headerName: 'Source Code', width: 150 },
             {
+                field: 'created_at',
+                headerName: 'Created At',
+                type: 'dateTime',
+                width: 200,
+                valueFormatter: (value) => {
+                    const date = new Date(value);
+                    if (!value) return '';
+                    return date.toLocaleString('pt-BR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            },
+            {
+                field: 'updated_at',
+                headerName: 'Updated At',
+                width: 200,
+                type: 'dateTime',
+                valueFormatter: (value) => {
+                    const date = new Date(value);
+                    if (!value) return '';
+                    return date.toLocaleString('pt-BR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            },
+            {
                 field: 'actions',
                 type: 'actions',
                 headerName: 'Actions',
@@ -317,6 +351,16 @@ const Products = () => {
         );
     }
 
+    // Disable pagination and sorting while loading
+    const handlePaginationModelChange = useCallback(
+        (newModel) => {
+            if (!loading) {
+                setPaginationModel(newModel);
+            }
+        },
+        [loading]
+    );
+
     if (error) {
         return (
             <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
@@ -339,7 +383,7 @@ const Products = () => {
                 rowCount={rowCount}
                 paginationMode="server"
                 paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
+                onPaginationModelChange={handlePaginationModelChange}
                 sortingMode="server"
                 sortModel={sortModel}
                 onSortModelChange={setSortModel}
@@ -354,6 +398,12 @@ const Products = () => {
                 rowSelectionModel={rowSelection}
                 checkboxSelection
                 disableRowSelectionOnClick
+
+                // Disable interaction while loading
+                disableColumnMenu={loading}
+                disableSelectionOnClick={loading}
+                disableColumnFilter={loading}
+                disableColumnSelector={loading}
             />
             <GenericFormModal
                 open={isModalOpen}
