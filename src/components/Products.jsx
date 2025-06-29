@@ -301,11 +301,11 @@ const Products = () => {
                         Delete Selected ({rowSelection.length})
                     </Button>
                 )}
-                <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateProductModal}>
+                {/* <Button color="primary" startIcon={<AddIcon />} onClick={handleOpenCreateProductModal}>
                     Add Product
                 </Button>
 
-                <GridSeparatorIcon sx={{ mx: 1 }} />
+                <GridSeparatorIcon sx={{ mx: 1 }} /> */}
 
                 <GridToolbarExport
                     slotProps={{

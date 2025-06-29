@@ -22,10 +22,15 @@ function AppContent() {
     const { token, logout, handleSessionExpired } = useAuth();
     const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
     const [sidebarWidth, setSidebarWidth] = React.useState(200); // default expanded
+    const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
     useEffect(() => {
         setSessionExpiredCallback(handleSessionExpired);
     }, [handleSessionExpired]);
+
+    const handleSidebarToggle = () => {
+        setSidebarOpen((prev) => !prev);
+    };
 
     const handleLogoutConfirmation = () => {
         setShowLogoutConfirm(true);
@@ -44,9 +49,17 @@ function AppContent() {
         <div className="App">
             {token ? (
                 <>
-                    <Header onLogout={handleLogoutConfirmation} isLoggedIn={!!token} />
+                    <Header
+                        onLogout={handleLogoutConfirmation}
+                        isLoggedIn={!!token}
+                        sidebarOpen={sidebarOpen}
+                        onSidebarToggle={handleSidebarToggle}
+                    />
                     <div style={{ display: 'flex' }}>
-                        <Sidebar onWidthChange={setSidebarWidth} />
+                        <Sidebar
+                            open={sidebarOpen}
+                            onWidthChange={setSidebarWidth}
+                        />
                         <div
                             style={{
                                 flex: 1,
