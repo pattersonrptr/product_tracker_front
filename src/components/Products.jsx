@@ -23,6 +23,22 @@ import PageHeader from './PageHeader';
 import useProducts from '../hooks/useProducts';
 import apiService from '../api/apiService';
 
+function normalizeFilterModel(filterModel) {
+    // Ensures that "is empty" and "is not empty" filters are preserved even without a value
+    return {
+        ...filterModel,
+        items: filterModel.items.map(item => {
+            if (
+                (item.operator === 'isEmpty' || item.operator === 'isNotEmpty') &&
+                (item.value === undefined || item.value === null)
+            ) {
+                return { ...item, value: '' }; // or null, depending on the backend
+            }
+            return item;
+        }),
+    };
+}
+
 const Products = () => {
     const [rowSelection, setRowSelection] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -234,34 +250,30 @@ const Products = () => {
             {
                 field: 'created_at',
                 headerName: 'Created At',
-                type: 'dateTime',
-                width: 200,
+                type: 'date',
+                width: 180,
                 valueFormatter: (value) => {
                     const date = new Date(value);
                     if (!value) return '';
                     return date.toLocaleString('pt-BR', {
                         year: 'numeric',
                         month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        day: '2-digit'
                     });
                 }
             },
             {
                 field: 'updated_at',
                 headerName: 'Updated At',
-                width: 200,
-                type: 'dateTime',
+                width: 150,
+                type: 'date',
                 valueFormatter: (value) => {
                     const date = new Date(value);
                     if (!value) return '';
                     return date.toLocaleString('pt-BR', {
                         year: 'numeric',
                         month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        day: '2-digit'
                     });
                 }
             },
@@ -361,6 +373,13 @@ const Products = () => {
         [loading]
     );
 
+    const handleFilterModelChange = useCallback(
+        (newModel) => {
+            setFilterModel(normalizeFilterModel(newModel));
+        },
+        []
+    );
+
     if (error) {
         return (
             <Box sx={{ p: 3, textAlign: 'center', color: 'error.main' }}>
@@ -388,7 +407,7 @@ const Products = () => {
                 sortModel={sortModel}
                 onSortModelChange={setSortModel}
                 filterMode="server"
-                onFilterModelChange={setFilterModel}
+                onFilterModelChange={handleFilterModelChange}
                 loading={loading}
                 slots={{ toolbar: CustomToolbar }}
                 slotProps={{

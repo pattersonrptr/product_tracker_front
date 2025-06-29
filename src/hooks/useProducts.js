@@ -28,8 +28,13 @@ const useProducts = (paginationModel, sortModel, filterModel) => {
             }
 
             filterModel.items.forEach(item => {
-                if (item.value) {
-                    params[`filter_${item.field}_value`] = item.value;
+                if (
+                    item.value ||
+                    item.value === 0 ||
+                    item.operator === 'isEmpty' ||
+                    item.operator === 'isNotEmpty'
+                ) {
+                    params[`filter_${item.field}_value`] = item.value ?? '';
                     params[`filter_${item.field}_operator`] = item.operator;
                 }
             });
